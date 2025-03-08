@@ -25,13 +25,12 @@ StarkMate is a decentralized chess platform that redefines competitive gameplay 
 - **Stockfish**: - [StockFish](https://stockfishchess.org/) via [C++](https://cplusplus.com/) Chess engine compiled for cutting-edge browsers. 
 
 ## Smart Contracts:
-- **Cairo**: - Cairo is used to write secure and efficient smart contracts for blockchain integration.
-             | Smart contracts handle game rules, token staking, and payout logic.
+- **Language**: - [Cairo](https://www.cairo-lang.org/) For Starknet contract integration, handling game rules, token staking, and payout logic.
 
 ## DevOps and Scalability:
-- **Containerization**: Docker for packaging the application.
-- **Orchestration**: Kubernetes for deploying and scaling the backend.
-- **Cloud Provider**: AWS or Google Cloud for hosting.
+- **Containerization**: [Docker](https://www.docker.com/) for testing & packaging the micro services.
+- **Orchestration**: [Kubernetes](https://kubernetes.io/) for deploying, managing and scaling the backend containers.
+- **Cloud Provider**: [AWS](https://aws.amazon.com/) for hosting.
 
 
 
