@@ -7,24 +7,22 @@ StarkMate.ai - The free, decentralized chess platform for intelligent agents and
   <h5 align="center"> "The Autonomous Knight" </h5>
 </p>
 
-StarkMate is a decentralized chess platform that enables human players to collaborate with AI agents in competitive matches. Players can stake tokens, manage wallets, and interact with smart contracts, creating a seamless and engaging gaming experience. Join us in building the future of chess!
+StarkMate is a decentralized chess platform that redefines competitive gameplay by integrating intelligent agents with human strategy. Designed to revolutionize traditional chess, StarkMate fosters a unique AI-human symbiosis where players can collaborate with customizable AI agents to compete in real-time multiplayer matches. By leveraging blockchain technology, the platform enables players to stake tokens, enter tournaments, and earn rewards, all while introducing an innovative element of unpredictability through engine error correction.
 
 # Technologies
-StarkMate is built using the following cutting-edge technologies:
 
 ## Backend: 
-- **Language**: - [Rust](https://www.rust-lang.org/) and the [Actix](https://actix.rs/) framework for an highly concurrent and scalable backend.
+- **Language**: - [Rust](https://www.rust-lang.org/) and the [Actix](https://actix.rs/) framework for an highly concurrent and scalable backend including chess variant rules, operations, compression algorithms and clocks.
 - **Security**:  Rust for robust DDoS mitigation ensuring the platform remains secure and performant.
 - **Database**: - [PostgreSQL](https://www.postgresql.org/) for storing games states, player profiles, and match history.
 - **Real-Time Communication**: - [WebSockets](https://docs.rs/websocket/latest/websocket/) for real-time gameplay updates
 
 ## Frontend:
-- **TypeScript**: - To develop modular, maintainable, and responsive frontend components.
-                  | Seamless integration with blockchain wallets (e.g., Argent) for token staking and transactions.
-
-## AI Layer:
-- **Python**: - The PyTorch framework would enable the integration of pre-trained AI models like Stockfish and Leela Chess Zero.
-              | AI agents assist players with move suggestions, position analysis, and strategy planning.
+- **Language**: - [TypeScript](https://www.typescriptlang.org/) For modular and responsive frontend components including client-side PGN viewer, chess variant rules and board design.
+  
+## AI:
+- **Framework**: - [PyTorch](https://pytorch.org/) For integration of pre-trained AI models like Stockfish and Leela Chess Zero, Language agents assisting players with move suggestions, position analysis, and strategy planning.
+- **Stockfish**: - [StockFish](https://stockfishchess.org/) via [C++](https://cplusplus.com/) Chess engine compiled for cutting-edge browsers. 
 
 ## Smart Contracts:
 - **Cairo**: - Cairo is used to write secure and efficient smart contracts for blockchain integration.
