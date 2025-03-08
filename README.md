@@ -32,6 +32,11 @@ StarkMate is a decentralized chess platform that redefines competitive gameplay 
 - **Orchestration**: [Kubernetes](https://kubernetes.io/) for deploying, managing and scaling the backend containers.
 - **Cloud Provider**: [AWS](https://aws.amazon.com/) for hosting.
 
+## Installation
 
+1. Clone the Repository**:
+   ```bash
+   git clone https://github.com/your-username/StarkMate.git
+   cd StarkMate
 
 
