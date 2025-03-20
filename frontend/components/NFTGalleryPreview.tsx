@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { ChevronLeft, ChevronRight, Diamond, Expand } from "lucide-react";
 
 interface NFT {
   id: string;
@@ -17,7 +16,6 @@ type NFTCollection = Record<string, NFT[]>;
 
 const NFTGalleryPreview: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string>("chess-pieces");
-  const [activeIndex, setActiveIndex] = useState<number>(0);
 
   const nftCollections: NFTCollection = {
     "chess-pieces": [
@@ -42,35 +40,6 @@ const NFTGalleryPreview: React.FC = () => {
           "AI-enhanced queen piece that adapts to your playing style.",
       },
     ],
-  };
-
-  const activeNFTs = nftCollections[activeCategory];
-
-  const handlePrev = () => {
-    setActiveIndex((prevIndex) =>
-      prevIndex === 0 ? activeNFTs.length - 1 : prevIndex - 1
-    );
-  };
-
-  const handleNext = () => {
-    setActiveIndex((prevIndex) =>
-      prevIndex === activeNFTs.length - 1 ? 0 : prevIndex + 1
-    );
-  };
-
-  const getRarityColor = (rarity: string) => {
-    switch (rarity) {
-      case "Legendary":
-        return "text-amber-400";
-      case "Epic":
-        return "text-purple-400";
-      case "Rare":
-        return "text-blue-400";
-      case "Unique":
-        return "text-rose-400";
-      default:
-        return "text-gray-400";
-    }
   };
 
   return (
@@ -105,7 +74,6 @@ const NFTGalleryPreview: React.FC = () => {
               key={category}
               onClick={() => {
                 setActiveCategory(category);
-                setActiveIndex(0);
               }}
               className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                 activeCategory === category
@@ -120,96 +88,6 @@ const NFTGalleryPreview: React.FC = () => {
                 : "Notable Rewards"}
             </button>
           ))}
-        </div>
-
-        {/* Featured NFT display */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 mb-12">
-          {/* Main featured NFT */}
-          <div className="lg:col-span-3 bg-gray-800 bg-opacity-50 backdrop-blur-lg rounded-xl border border-gray-700 overflow-hidden relative group">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
-
-            <div className="flex flex-col md:flex-row h-full">
-              <div className="md:w-3/5 relative">
-                <img
-                  src={activeNFTs[activeIndex].image}
-                  alt={activeNFTs[activeIndex].name}
-                  className="w-full h-64 md:h-full object-cover object-center"
-                />
-                <div
-                  className="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 capitalize"
-                  style={{
-                    backgroundColor: "rgba(0,0,0,0.6)",
-                    backdropFilter: "blur(10px)",
-                  }}
-                >
-                  <Diamond className="w-3 h-3" />
-                  <span
-                    className={getRarityColor(activeNFTs[activeIndex].rarity)}
-                  >
-                    {activeNFTs[activeIndex].rarity}
-                  </span>
-                </div>
-                <button className="absolute bottom-4 right-4 p-2 rounded-full bg-black bg-opacity-50 backdrop-blur-sm text-white hover:bg-opacity-70 transition-all duration-300">
-                  <Expand className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="md:w-2/5 p-6 flex flex-col justify-between">
-                <div>
-                  <h3 className="text-2xl font-bold text-white mb-2">
-                    {activeNFTs[activeIndex].name}
-                  </h3>
-                  <p className="text-gray-400 text-sm mb-4">
-                    {activeNFTs[activeIndex].description}
-                  </p>
-
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-500 text-sm">Owner</span>
-                      <span className="text-gray-300 font-medium">
-                        {activeNFTs[activeIndex].owner}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-500 text-sm">Price</span>
-                      <span className="text-indigo-400 font-medium">
-                        {activeNFTs[activeIndex].price}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex justify-between items-center">
-                  <button
-                    className={`px-4 py-2 rounded-full text-xs font-medium ${
-                      activeNFTs[activeIndex].price === "Not for sale"
-                        ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                        : "bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-300"
-                    }`}
-                  >
-                    {activeNFTs[activeIndex].price === "Not for sale"
-                      ? "Not For Sale"
-                      : "View Details"}
-                  </button>
-
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={handlePrev}
-                      className="p-2 rounded-full bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors duration-300"
-                    >
-                      <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={handleNext}
-                      className="p-2 rounded-full bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors duration-300"
-                    >
-                      <ChevronRight className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </section>
