@@ -48,3 +48,11 @@ StarkMate is a decentralized chess platform that redefines competitive gameplay 
   
 
 
+
+
+## Development
+
+```bash
+npm install || pip install -r requirements.txt
+npm test || pytest
+```
