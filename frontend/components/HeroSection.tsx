@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import chessking from "@/app/assets/chessking.jpeg";
+import { Button } from '@/components/ui'
 
 const HeroSection = () => {
   const [isAnimating, setIsAnimating] = useState(false);
@@ -25,14 +26,13 @@ const HeroSection = () => {
       <div className="absolute inset-0 z-0">
         <div className="grid grid-cols-12 grid-rows-12 h-full w-full opacity-20">
           {Array(144)
-          // @ts-ignore
+            // @ts-ignore
             .fill()
             .map((_, i) => (
               <div
                 key={i}
-                className={`border border-cyan-500/30 ${
-                  Math.random() > 0.92 ? "bg-cyan-500/20" : ""
-                }`}
+                className={`border border-cyan-500/30 ${Math.random() > 0.92 ? "bg-cyan-500/20" : ""
+                  }`}
               />
             ))}
         </div>
@@ -46,9 +46,8 @@ const HeroSection = () => {
           .map((_, i) => (
             <div
               key={i}
-              className={`absolute w-2 h-2 rounded-full bg-cyan-400 opacity-80 ${
-                isAnimating ? "animate-float" : ""
-              }`}
+              className={`absolute w-2 h-2 rounded-full bg-cyan-400 opacity-80 ${isAnimating ? "animate-float" : ""
+                }`}
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
@@ -77,14 +76,14 @@ const HeroSection = () => {
 
           <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start space-y-4 sm:space-y-0 sm:space-x-4">
             <Link href="/play">
-              <button className="px-8 py-3 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold text-lg hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-cyan-500/50 w-48">
+              <Button>
                 Play Now
-              </button>
+              </Button>
             </Link>
 
-            <button className=" py-3 rounded-full bg-transparent border-2 border-purple-500 text-white font-semibold text-lg hover:bg-purple-500/20 transition-all duration-300 w-48">
+            <Button variant="secondary">
               Connect Wallet
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -108,7 +107,7 @@ const HeroSection = () => {
 
                 {/* Circle of small blockchain nodes */}
                 {Array(12)
-                // @ts-ignore
+                  // @ts-ignore
                   .fill()
                   .map((_, i) => (
                     <div
@@ -129,7 +128,7 @@ const HeroSection = () => {
                 >
                   <g className="opacity-60">
                     {Array(6)
-                    // @ts-ignore
+                      // @ts-ignore
                       .fill()
                       .map((_, i) => (
                         <line

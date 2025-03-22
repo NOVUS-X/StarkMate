@@ -10,7 +10,7 @@ import {
   Clock,
   CheckCircle,
 } from "lucide-react";
-
+import Button from "@/components/ui/Button";
 // Define types for the data
 interface Stat {
   activeGames: number;
@@ -257,9 +257,9 @@ const LiveGamesStatistics: React.FC = () => {
               </ul>
             </div>
             <div className="p-4 border-t border-gray-700 text-center">
-              <button className="text-blue-400 hover:text-blue-300 transition-colors duration-200 text-sm font-medium">
+              <Button variant="tertiary" size="sm">
                 View All Live Games
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -308,18 +308,18 @@ const LiveGamesStatistics: React.FC = () => {
               </ul>
             </div>
             <div className="p-4 border-t border-gray-700 text-center">
-              <button className="text-blue-400 hover:text-blue-300 transition-colors duration-200 text-sm font-medium">
+              <Button variant="tertiary" size="sm">
                 View All Winners
-              </button>
+              </Button>
             </div>
           </div>
         </div>
 
         {/* View all games CTA */}
         <div className="mt-12 text-center">
-          <button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30 transform hover:-translate-y-1">
+          <Button bounceEffect>
             Explore All Games
-          </button>
+          </Button>
         </div>
       </div>
 

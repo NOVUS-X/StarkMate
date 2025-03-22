@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-
+import { Button } from '@/components/ui'
 // Define types for props
 interface NavLinkProps {
   href: string;
@@ -52,11 +52,10 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`fixed w-full z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-gray-900/90 backdrop-blur-md border-b border-cyan-500/20 py-2"
-          : "bg-transparent py-4"
-      }`}
+      className={`fixed w-full z-50 transition-all duration-300 ${isScrolled
+        ? "bg-gray-900/90 backdrop-blur-md border-b border-cyan-500/20 py-2"
+        : "bg-transparent py-4"
+        }`}
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between">
@@ -89,9 +88,8 @@ const Navbar = () => {
                 <span>Game Modes</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className={`h-4 w-4 transition-transform ${
-                    isDropdownOpen ? "rotate-180" : ""
-                  }`}
+                  className={`h-4 w-4 transition-transform ${isDropdownOpen ? "rotate-180" : ""
+                    }`}
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -103,7 +101,6 @@ const Navbar = () => {
                     d="M19 9l-7 7-7-7"
                   />
                 </svg>
-
                 {/* Hover indicator */}
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-cyan-500 group-hover:w-full transition-all duration-300"></span>
               </button>
@@ -131,21 +128,15 @@ const Navbar = () => {
           </div>
 
           {/* Connect Wallet Button */}
-          <div className="hidden md:block">
-            <button
+          <div className="hidden md:block w-[160px]">
+            <Button
+              size="sm"
               onClick={toggleWalletConnection}
-              className={`
-                px-4 py-2 rounded-full font-medium text-sm transition-all duration-300 flex items-center space-x-2
-                ${
-                  walletConnected
-                    ? "bg-gradient-to-r from-cyan-500 to-cyan-700 text-white hover:shadow-lg hover:shadow-cyan-500/20"
-                    : "bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:shadow-lg hover:shadow-purple-500/20"
-                }
-              `}
+              className="w-full"
             >
-              <div className="relative w-4 h-4">
+              <div className="relative w-4 h-4 mr-1">
                 {walletConnected ? (
-                  <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="absolute inset-0 mr-2 flex items-center justify-center">
                     <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
                   </div>
                 ) : (
@@ -171,8 +162,8 @@ const Navbar = () => {
                   </svg>
                 )}
               </div>
-              <span>{walletConnected ? "0xF3...7D21" : "Connect Wallet"}</span>
-            </button>
+              <span className="text-xs">{walletConnected ? "0xF3...7D21" : "Connect Wallet"}</span>
+            </Button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -183,19 +174,16 @@ const Navbar = () => {
             >
               <div className="w-6 h-6 relative">
                 <span
-                  className={`absolute h-0.5 w-full bg-current transform transition-all duration-300 ${
-                    isMobileMenuOpen ? "rotate-45 top-3" : "top-1"
-                  }`}
+                  className={`absolute h-0.5 w-full bg-current transform transition-all duration-300 ${isMobileMenuOpen ? "rotate-45 top-3" : "top-1"
+                    }`}
                 ></span>
                 <span
-                  className={`absolute h-0.5 w-full bg-current transform transition-all duration-300 ${
-                    isMobileMenuOpen ? "opacity-0" : "top-3"
-                  }`}
+                  className={`absolute h-0.5 w-full bg-current transform transition-all duration-300 ${isMobileMenuOpen ? "opacity-0" : "top-3"
+                    }`}
                 ></span>
                 <span
-                  className={`absolute h-0.5 w-full bg-current transform transition-all duration-300 ${
-                    isMobileMenuOpen ? "-rotate-45 top-3" : "top-5"
-                  }`}
+                  className={`absolute h-0.5 w-full bg-current transform transition-all duration-300 ${isMobileMenuOpen ? "-rotate-45 top-3" : "top-5"
+                    }`}
                 ></span>
               </div>
             </button>
@@ -205,9 +193,8 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       <div
-        className={`md:hidden transition-all duration-300 overflow-hidden ${
-          isMobileMenuOpen ? "max-h-96" : "max-h-0"
-        }`}
+        className={`md:hidden transition-all duration-300 overflow-hidden ${isMobileMenuOpen ? "max-h-96" : "max-h-0"
+          }`}
       >
         <div className="container mx-auto px-4 py-2">
           <div className="bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-xl overflow-hidden">
@@ -228,17 +215,11 @@ const Navbar = () => {
               />
               <MobileNavLink href="/dao" label="Governance" />
 
-              <div className="px-4 py-3">
-                <button
+              <div className="w-[200px]">
+                <Button
+                  variant="primary"
+                  size="lg"
                   onClick={toggleWalletConnection}
-                  className={`
-                    w-full px-4 py-2 rounded-full font-medium text-sm transition-all duration-300 flex items-center justify-center space-x-2
-                    ${
-                      walletConnected
-                        ? "bg-gradient-to-r from-cyan-500 to-cyan-700 text-white"
-                        : "bg-gradient-to-r from-purple-600 to-blue-600 text-white"
-                    }
-                  `}
                 >
                   <div className="relative w-4 h-4">
                     {walletConnected ? (
@@ -271,7 +252,7 @@ const Navbar = () => {
                   <span>
                     {walletConnected ? "0xF3...7D21" : "Connect Wallet"}
                   </span>
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -311,9 +292,8 @@ const MobileNavLink: React.FC<MobileNavLinkProps> = ({
 }) => (
   <Link
     href={href}
-    className={`block px-4 py-2 text-gray-300 hover:text-white transition-colors hover:bg-gray-800 ${
-      indented ? "pl-8 text-sm" : ""
-    }`}
+    className={`block px-4 py-2 text-gray-300 hover:text-white transition-colors hover:bg-gray-800 ${indented ? "pl-8 text-sm" : ""
+      }`}
   >
     {label}
   </Link>

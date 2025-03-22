@@ -1,5 +1,6 @@
 import React from "react";
 import { Wallet, LayoutGrid, Users, Trophy } from "lucide-react";
+import { Button } from '@/components/ui'
 
 const HowItWorks = () => {
   const steps = [
@@ -100,9 +101,9 @@ const HowItWorks = () => {
 
         {/* Blockchain-themed button */}
         <div className="text-center mt-16">
-          <button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/30 transform hover:-translate-y-1">
+          <Button bounceEffect>
             Start Playing Now
-          </button>
+          </Button>
         </div>
       </div>
     </section>
