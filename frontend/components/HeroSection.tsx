@@ -1,8 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import chessking from "@/app/assets/chessking.jpeg";
+import Chessboard from "./Chessboard";
 
 const HeroSection = () => {
   const [isAnimating, setIsAnimating] = useState(false);
@@ -25,8 +24,7 @@ const HeroSection = () => {
       <div className="absolute inset-0 z-0">
         <div className="grid grid-cols-12 grid-rows-12 h-full w-full opacity-20">
           {Array(144)
-          // @ts-ignore
-            .fill()
+            .fill(null)
             .map((_, i) => (
               <div
                 key={i}
@@ -41,8 +39,7 @@ const HeroSection = () => {
       {/* Animated particles */}
       <div className="absolute inset-0 z-0">
         {Array(20)
-          // @ts-ignore
-          .fill()
+          .fill(null)
           .map((_, i) => (
             <div
               key={i}
@@ -92,61 +89,47 @@ const HeroSection = () => {
         <div className="w-full md:w-1/2 flex justify-center">
           <div className="relative w-72 h-72 md:w-96 md:h-96">
             {/* Chess board with blockchain elements */}
-            <div className="absolute inset-0 rotate-45 bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-cyan-500/50 shadow-2xl shadow-cyan-500/20"></div>
+            <div className="absolute inset-0 rotate-45">
+              <Chessboard />
+            </div>
 
-            {/* Chess piece silhouettes */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="relative w-56 h-56 md:w-80 md:h-80">
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full">
-                  <Image
-                    src={chessking}
-                    alt="Chess King Wireframe"
-                    layout="fill"
-                    className="opacity-80"
-                  />
-                </div>
+            {/* Circle of small blockchain nodes */}
+            {Array(12)
+              .fill(null)
+              .map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute w-3 h-3 md:w-4 md:h-4 bg-purple-500 rounded-full shadow-lg shadow-purple-500/50"
+                  style={{
+                    left: `${50 + 45 * Math.cos((i * Math.PI) / 6)}%`,
+                    top: `${50 + 45 * Math.sin((i * Math.PI) / 6)}%`,
+                    animation: `pulse ${2 + (i % 3)}s infinite ${i * 0.2}s`,
+                  }}
+                />
+              ))}
 
-                {/* Circle of small blockchain nodes */}
-                {Array(12)
-                // @ts-ignore
-                  .fill()
+            {/* Connection lines */}
+            <svg
+              className="absolute inset-0 w-full h-full"
+              viewBox="0 0 100 100"
+            >
+              <g className="opacity-60">
+                {Array(6)
+                  .fill(null)
                   .map((_, i) => (
-                    <div
+                    <line
                       key={i}
-                      className="absolute w-3 h-3 md:w-4 md:h-4 bg-purple-500 rounded-full shadow-lg shadow-purple-500/50"
-                      style={{
-                        left: `${50 + 45 * Math.cos((i * Math.PI) / 6)}%`,
-                        top: `${50 + 45 * Math.sin((i * Math.PI) / 6)}%`,
-                        animation: `pulse ${2 + (i % 3)}s infinite ${i * 0.2}s`,
-                      }}
+                      x1={50 + 45 * Math.cos((i * Math.PI) / 3)}
+                      y1={50 + 45 * Math.sin((i * Math.PI) / 3)}
+                      x2={50 + 45 * Math.cos(((i + 3) * Math.PI) / 3)}
+                      y2={50 + 45 * Math.sin(((i + 3) * Math.PI) / 3)}
+                      stroke="rgb(139, 92, 246)"
+                      strokeWidth="0.5"
+                      className={isAnimating ? "animate-pulse" : ""}
                     />
                   ))}
-
-                {/* Connection lines */}
-                <svg
-                  className="absolute inset-0 w-full h-full"
-                  viewBox="0 0 100 100"
-                >
-                  <g className="opacity-60">
-                    {Array(6)
-                    // @ts-ignore
-                      .fill()
-                      .map((_, i) => (
-                        <line
-                          key={i}
-                          x1={50 + 45 * Math.cos((i * Math.PI) / 3)}
-                          y1={50 + 45 * Math.sin((i * Math.PI) / 3)}
-                          x2={50 + 45 * Math.cos(((i + 3) * Math.PI) / 3)}
-                          y2={50 + 45 * Math.sin(((i + 3) * Math.PI) / 3)}
-                          stroke="rgb(139, 92, 246)"
-                          strokeWidth="0.5"
-                          className={isAnimating ? "animate-pulse" : ""}
-                        />
-                      ))}
-                  </g>
-                </svg>
-              </div>
-            </div>
+              </g>
+            </svg>
           </div>
         </div>
       </div>
