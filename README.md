@@ -37,6 +37,14 @@ StarkMate is a decentralized chess platform that redefines competitive gameplay 
 1. **Clone the Repository**:
    ```bash
    git clone https://github.com/your-username/StarkMate.git
-   cd StarkMate
+2. **Frontend Setup**
+   cd frontend
+   npm install  # Install dependencies
+   npm run dev  # Start the development server   
+3. **Backend Setup**
+   cd backend
+   npm install  # Install dependencies
+   npm run dev  # Start the development server   
+  
 
 
