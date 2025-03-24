@@ -529,12 +529,179 @@ impl Board {
     // ISSUE #3 Implement the `move_piece` function.
     //
     pub fn move_piece(&self, orig: Square, dest: Square) -> Option<Board> {
+        // First check if the destination square is occupied
         if self.is_occupied_square(dest) {
-            None
-        } else {
-            self.piece_at(orig)
-                .map(|piece| self.discard_by_square(orig).put_or_replace(piece, dest))
+            return None;
         }
+        
+        // Get the piece at the origin square
+        let piece_opt = self.piece_at(orig);
+        if piece_opt.is_none() {
+            return None;
+        }
+        
+        let piece = piece_opt.unwrap();
+        let piece_color = piece.color;
+        
+        // Create a new board with the piece moved
+        let new_board = self.discard_by_square(orig).put_or_replace(piece, dest);
+        
+        // Find our king's position
+        let king_pos = new_board.king_pos_of(piece_color);
+        if king_pos.is_none() {
+            // If there's no king, just return the new board
+            return Some(new_board);
+        }
+        
+        let king_square = king_pos.unwrap();
+        
+        // Find all blockers between our king and attacking slider pieces
+        let blockers = find_slider_blockers(&new_board, king_square, piece_color);
+        
+        // Store the blockers information somewhere or use it for move validation
+        // For now, we'll just return the new board
+        Some(new_board)
+    }
+    
+    // Helper function to find slider blockers
+    fn find_slider_blockers(board: &Board, our_king: Square, us: Color) -> Bitboard {
+        let them = us.opposite();
+        let mut blockers = Bitboard::EMPTY;
+        
+        // Get enemy bishops, rooks, and queens (all slider pieces)
+        let enemy_bishops_and_queens = board.by_color.get(them) & (board.by_role.bishop | board.by_role.queen);
+        let enemy_rooks_and_queens = board.by_color.get(them) & (board.by_role.rook | board.by_role.queen);
+        
+        // Get all pieces except our king
+        let occupied_except_king = board.occupied ^ our_king.bitboard();
+        
+        // Check for potential bishop-like attackers (bishops and queens on diagonals)
+        let mut potential_bishop_attackers = enemy_bishops_and_queens.0;
+        while potential_bishop_attackers != 0 {
+            // Get the square of the potential attacker
+            let attacker_square = Square {
+                value: potential_bishop_attackers.trailing_zeros() as u8,
+            };
+            
+            // Check if the attacker is on the same diagonal or anti-diagonal as our king
+            let king_file = our_king.value % 8;
+            let king_rank = our_king.value / 8;
+            let attacker_file = attacker_square.value % 8;
+            let attacker_rank = attacker_square.value / 8;
+            
+            // Check if they're on the same diagonal or anti-diagonal
+            let file_diff = (attacker_file as i8 - king_file as i8).abs();
+            let rank_diff = (attacker_rank as i8 - king_rank as i8).abs();
+            
+            if file_diff == rank_diff {
+                // They're on the same diagonal or anti-diagonal
+                // Calculate the ray between them
+                let mut ray = Bitboard::EMPTY;
+                
+                // Determine the direction
+                let file_step = if attacker_file > king_file { 1 } else { -1 };
+                let rank_step = if attacker_rank > king_rank { 1 } else { -1 };
+                
+                // Start from the king and move towards the attacker
+                let mut current_file = king_file as i8 + file_step;
+                let mut current_rank = king_rank as i8 + rank_step;
+                
+                // Add all squares between king and attacker to the ray
+                while current_file >= 0 && current_file < 8 && 
+                      current_rank >= 0 && current_rank < 8 && 
+                      (current_file != attacker_file as i8 || current_rank != attacker_rank as i8) {
+                    let square = Square {
+                        value: (current_rank * 8 + current_file) as u8,
+                    };
+                    ray = ray | square.bitboard();
+                    
+                    current_file += file_step;
+                    current_rank += rank_step;
+                }
+                
+                // Check if there's exactly one piece on the ray
+                let pieces_on_ray = ray & occupied_except_king;
+                if pieces_on_ray.count() == 1 {
+                    // There's exactly one blocker
+                    let blocker = pieces_on_ray & board.by_color.get(us);
+                    if blocker.0 != 0 {
+                        // The blocker is our piece, so it's pinned
+                        blockers = blockers | blocker;
+                    }
+                }
+            }
+            
+            // Clear the least significant bit
+            potential_bishop_attackers &= potential_bishop_attackers - 1;
+        }
+        
+        // Check for potential rook-like attackers (rooks and queens on ranks/files)
+        let mut potential_rook_attackers = enemy_rooks_and_queens.0;
+        while potential_rook_attackers != 0 {
+            // Get the square of the potential attacker
+            let attacker_square = Square {
+                value: potential_rook_attackers.trailing_zeros() as u8,
+            };
+            
+            // Check if the attacker is on the same file or rank as our king
+            let king_file = our_king.value % 8;
+            let king_rank = our_king.value / 8;
+            let attacker_file = attacker_square.value % 8;
+            let attacker_rank = attacker_square.value / 8;
+            
+            // Check if they're on the same file or rank
+            if king_file == attacker_file || king_rank == attacker_rank {
+                // They're on the same file or rank
+                // Calculate the ray between them
+                let mut ray = Bitboard::EMPTY;
+                
+                if king_file == attacker_file {
+                    // Same file
+                    let rank_step = if attacker_rank > king_rank { 1 } else { -1 };
+                    let mut current_rank = king_rank as i8 + rank_step;
+                    
+                    // Add all squares between king and attacker to the ray
+                    while current_rank >= 0 && current_rank < 8 && current_rank != attacker_rank as i8 {
+                        let square = Square {
+                            value: (current_rank * 8 + king_file) as u8,
+                        };
+                        ray = ray | square.bitboard();
+                        
+                        current_rank += rank_step;
+                    }
+                } else {
+                    // Same rank
+                    let file_step = if attacker_file > king_file { 1 } else { -1 };
+                    let mut current_file = king_file as i8 + file_step;
+                    
+                    // Add all squares between king and attacker to the ray
+                    while current_file >= 0 && current_file < 8 && current_file != attacker_file as i8 {
+                        let square = Square {
+                            value: (king_rank * 8 + current_file) as u8,
+                        };
+                        ray = ray | square.bitboard();
+                        
+                        current_file += file_step;
+                    }
+                }
+                
+                // Check if there's exactly one piece on the ray
+                let pieces_on_ray = ray & occupied_except_king;
+                if pieces_on_ray.count() == 1 {
+                    // There's exactly one blocker
+                    let blocker = pieces_on_ray & board.by_color.get(us);
+                    if blocker.0 != 0 {
+                        // The blocker is our piece, so it's pinned
+                        blockers = blockers | blocker;
+                    }
+                }
+            }
+            
+            // Clear the least significant bit
+            potential_rook_attackers &= potential_rook_attackers - 1;
+        }
+        
+        blockers
     }
 
     // Implement the `taking` function.
