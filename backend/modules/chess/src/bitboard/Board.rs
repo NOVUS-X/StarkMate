@@ -117,7 +117,8 @@ impl Square {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Piece {Write a function that, given a square, an attacking color, and an occupied bitboard,
+pub struct Piece {
+    //  Write a function that, given a square, an attacking color, and an occupied bitboard,
     //   returns a Bitboard representing all pieces of that color that can attack the square.
     // - Consider all piece attack patterns: rook, bishop, knight, king, and pawn.
     
@@ -434,17 +435,19 @@ impl Board {
     // ISSUE #1: Implement the `attackers` function.
     pub fn attackers() -> Bitboard {
         //Write your code here
+        Bitboard::EMPTY // Temporary placeholder
     }
 
     /// Returns true if there is any attack on the square.
     pub fn attacks() -> bool {
          //Write your code here
+         false // Temporary placeholder
     }
 
     // ISSUE #2: Implement the `slider_blockers` function.
-
     pub fn slider_blockers(&self, our_king: Square, us: Color) -> Bitboard {
         //Write your code here
+        Bitboard::EMPTY // Temporary placeholder
     }
 
     /// Discards the piece on a given square.
@@ -538,9 +541,9 @@ impl Board {
     }
 
     // Implement the `taking` function.
-  
     pub fn taking() -> Option<Board> {
         //Write your code here
+        None // Temporary placeholder
     }
 
     /// Promotes a pawn.
@@ -560,7 +563,15 @@ impl Board {
 
     // ISSUE #5: Implement the `piece_map` function.
     pub fn piece_map(&self) -> HashMap<Square, Piece> {
-        //Write your code here
+        let mut map_of_pieces = HashMap::new();
+        
+        for square in self.occupied.to_squares() {
+            if let Some(piece) = self.piece_at(square) {
+                map_of_pieces.insert(square, piece);
+            }
+        }
+        
+        map_of_pieces
     }
 
     /// Returns a mapping of pieces for a given color.
