@@ -79,17 +79,17 @@ const HeroSection = () => {
               </button>
             </Link>
 
-            <button className=" py-3 rounded-full bg-transparent border-2 border-purple-500 text-white font-semibold text-lg hover:bg-purple-500/20 transition-all duration-300 w-48">
+            <button className=" py-3 mb-8 md:mb-0 rounded-full bg-transparent border-2 border-purple-500 text-white font-semibold text-lg hover:bg-purple-500/20 transition-all duration-300 w-48">
               Connect Wallet
             </button>
           </div>
         </div>
 
         {/* Visual content */}
-        <div className="w-full md:w-1/2 flex justify-center">
+        <div className="w-full md:w-1/2 flex justify-center ">
           <div className="relative w-72 h-72 md:w-96 md:h-96">
             {/* Chess board with blockchain elements */}
-            <div className="absolute inset-0 rotate-45">
+            <div className="absolute inset-0 rotate-45 ">
               <Chessboard />
             </div>
 

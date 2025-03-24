@@ -7,7 +7,7 @@ const Chessboard = () => {
   );
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-[95%]  md:w-[100%]">
       {/* Glow effect behind the board */}
       <div className="absolute inset-0 bg-cyan-500/20 blur-xl rounded-xl"></div>
       
@@ -18,9 +18,9 @@ const Chessboard = () => {
               key={`${i}-${j}`}
               className={`aspect-square ${
                 isLight
-                  ? 'bg-gray-700/80'
+                  ? 'bg-gray-700/80 '
                   : 'bg-gray-900/90'
-              } transition-colors duration-300 hover:bg-cyan-500/20`}
+              } transition-colors duration-300 `}
             />
           ))
         )}
