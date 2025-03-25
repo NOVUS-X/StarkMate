@@ -6,7 +6,7 @@ import chessking from "@/app/assets/chessking.jpeg";
 
 const NotFound = () => {
 	return (
-		<div className="relative min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-900 text-white overflow-hidden">
+		<div className="relative min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white overflow-hidden">
 			{/* Background Grid */}
 			<div className="absolute inset-0 opacity-20 grid grid-cols-12 grid-rows-12">
 				{Array.from({ length: 144 }, (_, i) => (
@@ -17,6 +17,11 @@ const NotFound = () => {
 						}`}
 					/>
 				))}
+			</div>
+
+			{/* Glow Effect */}
+			<div className="absolute inset-0 pointer-events-none overflow-hidden">
+				<div className="absolute -bottom-24 left-1/4 w-1/2 h-24 bg-cyan-500/20 blur-3xl rounded-full"></div>
 			</div>
 
 			{/* Floating Particles */}
@@ -35,7 +40,7 @@ const NotFound = () => {
 
 			{/* Animated Floating Shapes */}
 			{Array.from({ length: 10 }, (_, i) => {
-				const size = Math.random() * 40 + 20; // Random size between 20-60px
+				const size = Math.random() * 40 + 20;
 				const left = Math.random() * 100;
 				const top = Math.random() * 100;
 				const animationDelay = Math.random() * 5;
@@ -52,7 +57,7 @@ const NotFound = () => {
 				return (
 					<div
 						key={i}
-						className={`absolute ${shape} bg-purple-400 opacity-60 animate-float-rotate`}
+						className={`absolute ${shape} bg-cyan-500/30 opacity-60 animate-float-rotate`}
 						style={{
 							width: `${size}px`,
 							height: `${size}px`,
@@ -68,35 +73,32 @@ const NotFound = () => {
 
 			{/* Content */}
 			<div className="relative z-10 text-center">
-				<h1 className="text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 animate-glitch">
+				<h1 className="text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-purple-500 animate-glitch">
 					404
 				</h1>
-				<p className="text-gray-300 text-xl mt-4">
+				<p className="text-gray-400 text-xl mt-4">
 					Oops! The page you're looking for doesn't exist.
 				</p>
 
 				{/* Floating Chess Image with Glowing Orbit */}
 				<div className="relative w-60 h-60 mx-auto mt-6 flex items-center justify-center animate-float">
-					{/* Glowing Orbit Ring */}
-					<div className="absolute inset-0 rounded-full border-2 border-cyan-400/30 animate-spin-slow"></div>
-
 					{/* Soft Glowing Aura */}
-					<div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400/20 to-purple-500/20 blur-xl opacity-60 animate-pulse"></div>
+					<div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-500/20 to-purple-500/20 blur-xl opacity-60 animate-pulse"></div>
 
 					{/* Chess Image */}
 					<Image
 						src={chessking}
 						alt="Chess King"
-						width={220}
-						height={220}
-						className="relative rounded-lg shadow-lg shadow-cyan-500/40 transition-all duration-500 hover:scale-110 hover:shadow-purple-500/50"
+						width={200}
+						height={200}
+						className="relative shadow-lg shadow-cyan-500/40 transition-all duration-500 hover:scale-110 hover:shadow-purple-500/50 rounded-full"
 					/>
 				</div>
 
 				{/* Buttons */}
 				<div className="mt-8">
 					<Link href="/">
-						<button className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold text-lg rounded-full hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-cyan-500/50">
+						<button className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-semibold text-lg rounded-lg hover:from-cyan-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-cyan-500/20">
 							Return Home
 						</button>
 					</Link>
