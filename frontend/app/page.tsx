@@ -5,6 +5,8 @@ import KeyFeatures from "@/components/KeyFeatures";
 import LiveGamesStatistics from "@/components/LiveGamesStatistics";
 import Navbar from "@/components/Navbar";
 import NFTGalleryPreview from "@/components/NFTGalleryPreview";
+import WaitlistSection from "@/components/WaitlistSection";
+
 export default function Home() {
   return (
     <>
@@ -14,6 +16,7 @@ export default function Home() {
       <HowItWorks />
       <LiveGamesStatistics />
       <NFTGalleryPreview />
+      <WaitlistSection />
       <Footer />
     </>
   );
