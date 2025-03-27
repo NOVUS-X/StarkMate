@@ -1,10 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { FaArrowDown } from "react-icons/fa"; // Import the arrow icon
-
-import Image from "next/image";
 import Link from "next/link";
-import chessking from "@/app/assets/chessking.jpeg";
+import Chessboard from "./Chessboard";
 
 const HeroSection = () => {
   const [isAnimating, setIsAnimating] = useState(false);
