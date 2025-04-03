@@ -64,7 +64,7 @@ const Navbar = () => {
             <div className="relative w-8 h-8 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 to-purple-500 rounded-md"></div>
               <div className="absolute inset-1 bg-gray-900 rounded-sm flex items-center justify-center">
-                <span className="text-cyan-500 font-bold text-lg">C</span>
+                <span className="text-cyan-500 font-bold text-lg">S</span>
               </div>
               <div className="absolute top-0 left-0 w-full h-full opacity-50 bg-gradient-to-t from-transparent to-white/30"></div>
             </div>
@@ -114,6 +114,8 @@ const Navbar = () => {
                       <DropdownItem href="/game/classic" label="Classic" />
                       <DropdownItem href="/game/blitz" label="Blitz" />
                       <DropdownItem href="/game/bullet" label="Bullet" />
+                      <DropdownItem href="/game/chess960" label="Chess 960" />
+                      <DropdownItem href="/game/symbiosis" label="Symbiosis" />
                       <DropdownItem
                         href="/game/tournaments"
                         label="Tournaments"
