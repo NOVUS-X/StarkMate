@@ -1,5 +1,5 @@
-import Footer from "@/components/Footer";
-import NotFound from "@/components/NotFound";
+import NotFound from "../components/NotFound";
+import Footer from "../components/Footer";
 
 export default function NotFoundPage() {
 	return (

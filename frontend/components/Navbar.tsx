@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Button } from '@/components/ui'
+import { Button } from '../components/ui'
 // Define types for props
 interface NavLinkProps {
   href: string;

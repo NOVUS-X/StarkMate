@@ -10,7 +10,7 @@ import {
   Clock,
   CheckCircle,
 } from "lucide-react";
-import Button from "@/components/ui/Button";
+import Button from "../components/ui/Button";
 // Define types for the data
 interface Stat {
   activeGames: number;

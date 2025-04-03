@@ -12,9 +12,8 @@ const NotFound = () => {
 				{Array.from({ length: 144 }, (_, i) => (
 					<div
 						key={i}
-						className={`border border-cyan-500/30 bg-cyan-500/10 ${
-							Math.random() > 0.92 ? "bg-cyan-500/20" : ""
-						}`}
+						className={`border border-cyan-500/30 bg-cyan-500/10 ${Math.random() > 0.92 ? "bg-cyan-500/20" : ""
+							}`}
 					/>
 				))}
 			</div>
@@ -77,7 +76,7 @@ const NotFound = () => {
 					404
 				</h1>
 				<p className="text-gray-400 text-xl mt-4">
-					Oops! The page you're looking for doesn't exist.
+					Oops! The page you&apos;re looking for doesn&apos;t exist.
 				</p>
 
 				{/* Floating Chess Image with Glowing Orbit */}

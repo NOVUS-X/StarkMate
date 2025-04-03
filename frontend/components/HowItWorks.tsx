@@ -1,6 +1,6 @@
 import React from "react";
 import { Wallet, LayoutGrid, Users, Trophy } from "lucide-react";
-import { Button } from '@/components/ui'
+import { Button } from '../components/ui'
 
 const HowItWorks = () => {
   const steps = [
