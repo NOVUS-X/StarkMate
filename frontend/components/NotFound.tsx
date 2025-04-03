@@ -2,7 +2,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import chessking from "@/app/assets/chessking.jpeg";
+import chessking from "../app/assets/chessking.jpeg"
 
 const NotFound = () => {
 	return (
