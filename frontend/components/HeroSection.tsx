@@ -4,7 +4,7 @@ import { FaArrowDown } from "react-icons/fa"; // Import the arrow icon
 
 import Link from "next/link";
 import Chessboard from "./Chessboard";
-import { Button } from '@/components/ui'
+import { Button } from './ui'
 
 const HeroSection = () => {
   const [isAnimating, setIsAnimating] = useState(false);
@@ -31,16 +31,24 @@ const HeroSection = () => {
     }
   };
 
+
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-900">
       {/* Blockchain grid background */}
-      <div className="absolute inset-0 opacity-20 grid grid-cols-12 grid-rows-12">
-        {Array.from({ length: 144 }, (_, i) => (
-          <div
-            key={i}
-            className="jsx-51939d8b18ab707d border border-cyan-500/30 bg-cyan-500/10"
-          />
-        ))}
+      <div className="absolute inset-0 z-0">
+        <div className="grid grid-cols-12 grid-rows-12 h-full w-full opacity-20">
+          {Array(144)
+            // @ts-ignore
+            .fill()
+            .map((_, i) => (
+              <div
+                key={i}
+                className={`border border-cyan-500/30 ${Math.random() > 0.92 ? "bg-cyan-500/20" : ""
+                  }`}
+              />
+            ))}
+        </div>
       </div>
 
       {/* Animated particles */}
@@ -102,6 +110,7 @@ const HeroSection = () => {
 
             {/* Circle of small blockchain nodes */}
             {Array(12)
+              // @ts-ignore
               .fill()
               .map((_, i) => (
                 <div
