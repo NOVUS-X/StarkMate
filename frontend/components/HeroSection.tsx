@@ -30,6 +30,9 @@ const HeroSection = () => {
     }
   };
 
+  // Chess piece types for our background elements
+  const pieceTypes = ["pawn", "knight", "bishop", "rook", "queen", "king"];
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-900">
       {/* Blockchain grid background */}
@@ -42,25 +45,42 @@ const HeroSection = () => {
         ))}
       </div>
 
-      {/* Animated particles */}
-      <div className="absolute inset-0 z-0">
-        {Array(20)
-          // @ts-ignore
-          .fill()
-          .map((_, i) => (
-            <div
-              key={i}
-              className={`absolute w-2 h-2 rounded-full bg-cyan-400 opacity-80 ${
-                isAnimating ? "animate-float" : ""
-              }`}
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                animationDuration: `${5 + Math.random() * 10}s`,
-              }}
-            />
-          ))}
+      {/* Chess piece background elements */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        {Array(15)
+          .fill(null)
+          .map((_, i) => {
+            const piece =
+              pieceTypes[Math.floor(Math.random() * pieceTypes.length)];
+            const size = `${Math.random() * 0.5 + 0.5}rem`;
+            const opacity = Math.random() * 0.3 + 0.2;
+            const duration = `${Math.random() * 10 + 10}s`;
+            const delay = `${Math.random() * 5}s`;
+
+            return (
+              <div
+                key={i}
+                className={`absolute ${isAnimating ? "animate-float" : ""}`}
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  width: size,
+                  height: size,
+                  opacity: opacity,
+                  animationDelay: delay,
+                  animationDuration: duration,
+                }}
+              >
+                <svg viewBox="0 0 50 50" className="w-full h-full">
+                  <path
+                    d={getPiecePath(piece)}
+                    fill="currentColor"
+                    className="text-cyan-400/50"
+                  />
+                </svg>
+              </div>
+            );
+          })}
       </div>
 
       {/* Content container */}
@@ -151,5 +171,21 @@ const HeroSection = () => {
     </div>
   );
 };
+
+// Helper function to get SVG paths for chess pieces
+function getPiecePath(piece: string): string {
+  const pieces: { [key: string]: string } = {
+    pawn: "M 20,42 L 20,35 C 20,33 18,31 18,29 C 18,27 22,27 22,23 C 22,21 20,19 20,19 C 20,19 25,18 25,14 C 25,11 22,10 22,10 L 28,10 C 28,10 25,11 25,14 C 25,18 30,19 30,19 C 30,19 28,21 28,23 C 28,27 32,27 32,29 C 32,31 30,33 30,35 L 30,42 L 20,42",
+    rook: "M 18,42 L 18,35 L 16,35 L 16,31 L 14,31 L 14,25 L 16,25 L 16,21 L 14,21 L 14,15 L 36,15 L 36,21 L 34,21 L 34,25 L 36,25 L 36,31 L 34,31 L 34,35 L 32,35 L 32,42 L 18,42",
+    knight:
+      "M 20,42 L 20,35 C 20,35 18,34 18,32 C 18,30 18,28 19,27 C 20,26 21,23 21,21 C 21,19 20,18 20,16 C 20,14 22,13 22,13 C 25,13 28,15 30,17 C 32,19 34,21 34,25 C 34,29 31,31 31,31 L 31,35 L 29,35 L 29,42 L 20,42",
+    bishop:
+      "M 20,42 L 20,35 C 20,33 18,31 18,29 C 18,27 22,27 22,23 C 22,21 20,19 20,19 C 20,19 25,18 25,14 C 25,11 22,10 22,10 L 28,10 C 28,10 25,11 25,14 C 25,18 30,19 30,19 C 30,19 28,21 28,23 C 28,27 32,27 32,29 C 32,31 30,33 30,35 L 30,42 L 20,42",
+    queen:
+      "M 20,42 L 20,35 C 20,35 15,32 15,28 C 15,24 20,24 20,20 C 20,16 15,16 15,12 C 15,8 20,8 20,8 L 30,8 C 30,8 35,8 35,12 C 35,16 30,16 30,20 C 30,24 35,24 35,28 C 35,32 30,35 30,35 L 30,42 L 20,42",
+    king: "M 22.5,8 L 22.5,12 L 17.5,12 L 17.5,17 L 22.5,17 L 22.5,42 L 27.5,42 L 27.5,17 L 32.5,17 L 32.5,12 L 27.5,12 L 27.5,8 L 22.5,8",
+  };
+  return pieces[piece] || pieces.pawn;
+}
 
 export default HeroSection;
