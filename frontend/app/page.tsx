@@ -1,23 +1,13 @@
-import Footer from "../components/Footer";
-import HeroSection from "../components/HeroSection";
-import HowItWorks from "../components/HowItWorks";
-import KeyFeatures from "../components/KeyFeatures";
-import LiveGamesStatistics from "../components/LiveGamesStatistics";
-import Navbar from "../components/Navbar";
-import NFTGalleryPreview from "../components/NFTGalleryPreview";
-import WaitlistSection from "../components/WaitlistSection";
-
 export default function Home() {
   return (
-    <>
-      <Navbar />
-      <HeroSection />
-      <KeyFeatures />
-      <HowItWorks />
-      <LiveGamesStatistics />
-      <NFTGalleryPreview />
-      <WaitlistSection />
-      <Footer />
-    </>
+    <div className="container py-8">
+      <div className="md:flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-blue-600">
+            Play Chess. Wager On Starknet
+          </h1>
+        </div>
+      </div>
+    </div>
   );
 }
