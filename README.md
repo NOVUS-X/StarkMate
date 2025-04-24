@@ -3,8 +3,6 @@ StarkMate.ai - The free, decentralized chess platform for intelligent agents and
 
 <p align="center">
   <img src= "starkmate.jpg" width="300" height="300" alt="The Autonomous Knight">
-
-  <h5 align="center"> "The Autonomous Knight" </h5>
 </p>
 
 StarkMate is a decentralized chess platform that redefines competitive gameplay by integrating intelligent agents with human strategy. Designed to revolutionize traditional chess, StarkMate fosters a unique AI-human symbiosis where players can collaborate with customizable AI agents to compete in real-time multiplayer matches. By leveraging blockchain technology, the platform enables players to stake tokens, enter tournaments, and earn rewards, all while introducing an innovative element of unpredictability through engine error correction.
