@@ -9,7 +9,7 @@ import {
     ChessIcon,
     WatchIcon,
     NewsIcon,
-    SocialIcon,
+    UserIcon,
     SettingsIcon,
     SupportIcon,
     CollapseIcon,
@@ -65,7 +65,7 @@ export function GameSidebar({ collapsed, setCollapsed, isMobileView = false }: S
                 <SidebarItem icon={<ChessIcon />} label="Play" collapsed={collapsed} active />
                 <SidebarItem icon={<WatchIcon />} label="Watch" collapsed={collapsed} />
                 <SidebarItem icon={<NewsIcon />} label="News" collapsed={collapsed} />
-                <SidebarItem icon={<SocialIcon />} label="Social" collapsed={collapsed} />
+                <SidebarItem icon={<UserIcon />} label="Profile" collapsed={collapsed} />
                 <SidebarItem icon={<SettingsIcon />} label="Settings" collapsed={collapsed} />
                 <SidebarItem icon={<SupportIcon />} label="Support" collapsed={collapsed} />
             </nav>
@@ -122,7 +122,7 @@ function MobileSidebar() {
                 <MobileSidebarItem icon={<ChessIcon />} label="Play" active />
                 <MobileSidebarItem icon={<WatchIcon />} label="Watch" />
                 <MobileSidebarItem icon={<NewsIcon />} label="News" />
-                <MobileSidebarItem icon={<SocialIcon />} label="Social" />
+                <MobileSidebarItem icon={<UserIcon />} label="Profile" />
                 <MobileSidebarItem icon={<SettingsIcon />} label="Settings" />
                 <MobileSidebarItem icon={<SupportIcon />} label="Support" />
             </nav>

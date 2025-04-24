@@ -4,7 +4,7 @@ import {
   BookOpen,
   Eye,
   Newspaper,
-  Users,
+  User,
   MoreHorizontal,
   ChevronLeft,
   Settings,
@@ -33,8 +33,8 @@ export function NewsIcon() {
   return <Newspaper size={20} />
 }
 
-export function SocialIcon() {
-  return <Users size={20} />
+export function UserIcon() {
+  return <User size={20} />
 }
 
 export function MoreIcon() {
