@@ -1,6 +1,6 @@
 use crate::helper::password;
 use db::db::db::get_db;
-use dto::players::players::{NewPlayer, UpdatePlayer};
+use dto::players::{NewPlayer, UpdatePlayer};
 use error::error::ApiError;
 use entity::player;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set};
@@ -35,6 +35,7 @@ pub async fn get_player_by_id(id: Uuid) -> Result<player::Model, ApiError>{
 
     let user = player::Entity::find()
         .filter(player::Column::Id.eq(id))
+        .filter(player::Column::IsEnabled.eq(true))
         .one(&db)
         .await
         .unwrap();
@@ -104,4 +105,18 @@ pub async fn update_player(id: Uuid, payload: UpdatePlayer) -> Result<player::Mo
     let updated_player = active_model.update(&db).await.map_err(ApiError::DatabaseError)?;
     
     Ok(updated_player)
+}
+
+
+pub async  fn delete_player(id: Uuid) -> Result<(), ApiError> {
+    let db = get_db().await;
+    let existing_player = get_player_by_id(id).await?;
+
+    let mut active_model: player::ActiveModel = existing_player.into();
+
+    active_model.is_enabled = Set(false);
+
+    active_model.update(&db).await.map_err(ApiError::DatabaseError)?;
+
+    Ok(())
 }
