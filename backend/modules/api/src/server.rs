@@ -1,8 +1,11 @@
 // src/main.rs
 
-use actix_web::{web, App, HttpServer, Responder, HttpResponse};
+use actix_web::{App, HttpResponse, HttpServer, Responder, web};
 use dotenv::dotenv;
+use error::error::custom_json_error;
 use std::env;
+
+use crate::players::players::{add_player, update_player};
 
 /// Simple health-check endpoint
 async fn health() -> impl Responder {
@@ -14,8 +17,7 @@ async fn greet() -> impl Responder {
     HttpResponse::Ok().body("Welcome to StarkMate API")
 }
 
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
+pub async fn main() -> std::io::Result<()> {
     // Load .env variables (e.g., DATABASE_URL, SERVER_ADDR)
     dotenv().ok();
 
@@ -29,10 +31,12 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
+            .app_data(web::JsonConfig::default().error_handler(custom_json_error))
             // Register health-check
             .route("/health", web::get().to(health))
             // Register greeting
             .route("/", web::get().to(greet))
+            .service(web::scope("/v1/players").service(add_player).service(crate::players::players::get_player_by_id).service(update_player))
     })
     .bind(&server_addr)?
     .run()
