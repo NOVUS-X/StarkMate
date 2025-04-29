@@ -5,6 +5,10 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { useState } from "react"
+import { WalletConnectModal } from "./WalletConnectModal"
+import { SignInModal } from "./SignInModal"
+import { useAppContext } from "@/context/walletContext"
 import {
     ChessIcon,
     WatchIcon,
@@ -24,87 +28,135 @@ interface SidebarProps {
 }
 
 export function GameSidebar({ collapsed, setCollapsed, isMobileView = false }: SidebarProps) {
+    const [isWalletModalOpen, setIsWalletModalOpen] = useState(false)
+    const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
+    const { address, status } = useAppContext()
+
     // For mobile view, we'll use a Sheet component
     if (isMobileView) {
         return (
-            <Sheet>
-                <SheetTrigger asChild>
-                    <Button variant="ghost" size="icon" className="md:hidden">
-                        <MenuIcon />
-                        <span className="sr-only">Toggle menu</span>
-                    </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="p-0 w-64 bg-gray-900 border-r border-gray-800">
-                    <MobileSidebar />
-                </SheetContent>
-            </Sheet>
+            <>
+                <Sheet>
+                    <SheetTrigger asChild>
+                        <Button variant="ghost" size="icon" className="md:hidden">
+                            <MenuIcon />
+                            <span className="sr-only">Toggle menu</span>
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="p-0 w-64 bg-gray-900 border-r border-gray-800">
+                        <MobileSidebar />
+                    </SheetContent>
+                </Sheet>
+                <WalletConnectModal isOpen={isWalletModalOpen} onClose={() => setIsWalletModalOpen(false)} />
+                <SignInModal isOpen={isSignInModalOpen} onClose={() => setIsSignInModalOpen(false)} />
+            </>
         )
     }
 
     // Desktop sidebar
+    const truncateAddress = (addr: string) => {
+        return `${addr.slice(0, 6)}...${addr.slice(-4)}`
+    }
+
     return (
-        <div
-            className={`bg-gray-900 border-r border-gray-800 flex-col transition-all duration-300 hidden md:flex ${collapsed ? "w-16" : "w-64"
-                }`}
-        >
-            <div className="p-4 flex items-center justify-center">
-                {collapsed ? (
-                    <div className="w-16 h-16 relative">
-                        <Image src="/images/StarkmateLogo.png" alt="StarkMate" fill className="object-contain" />
-                    </div>
-                ) : (
-                    <div className="flex items-center space-x-2">
+        <>
+            <div
+                className={`bg-gray-900 border-r border-gray-800 flex-col transition-all duration-300 hidden md:flex ${collapsed ? "w-16" : "w-64"
+                    }`}
+            >
+                <div className="p-4 flex items-center justify-center">
+                    {collapsed ? (
                         <div className="w-16 h-16 relative">
                             <Image src="/images/StarkmateLogo.png" alt="StarkMate" fill className="object-contain" />
                         </div>
-                    </div>
-                )}
-            </div>
-
-            <nav className="flex-1">
-                <SidebarItem icon={<ChessIcon />} label="Play" collapsed={collapsed} active />
-                <SidebarItem icon={<WatchIcon />} label="Watch" collapsed={collapsed} />
-                <SidebarItem icon={<NewsIcon />} label="News" collapsed={collapsed} />
-                <SidebarItem icon={<UserIcon />} label="Profile" collapsed={collapsed} />
-                <SidebarItem icon={<SettingsIcon />} label="Settings" collapsed={collapsed} />
-                <SidebarItem icon={<SupportIcon />} label="Support" collapsed={collapsed} />
-            </nav>
-
-            <div className="p-4 space-y-2">
-                <Button className="w-full bg-gradient-to-r from-teal-500 to-blue-700 hover:from-teal-600 hover:to-blue-800 text-white">
-                    {collapsed ? (
-                        <WalletIcon />
                     ) : (
-                        <div className="flex items-center">
-                            <WalletIcon />
-                            <span className="ml-2">Connect Wallet</span>
+                        <div className="flex items-center space-x-2">
+                            <div className="w-16 h-16 relative">
+                                <Image src="/images/StarkmateLogo.png" alt="StarkMate" fill className="object-contain" />
+                            </div>
                         </div>
                     )}
-                </Button>
-                {!collapsed && (
-                    <>
-                        <Button className="w-full bg-teal-600 hover:bg-teal-700">Sign Up</Button>
-                        <Button variant="outline" className="w-full border-gray-700 text-gray-300">
-                            Log In
-                        </Button>
-                    </>
-                )}
-            </div>
+                </div>
 
-            <div className="border-t border-gray-800 p-2">
-                <button
-                    onClick={() => setCollapsed(!collapsed)}
-                    className="p-2 w-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-800 rounded-md transition-all duration-300 group"
-                >
-                    <div className={`transform transition-transform duration-300 ${collapsed ? "rotate-180" : ""}`}>
-                        <CollapseIcon />
-                    </div>
-                    {!collapsed && (
-                        <span className="ml-2 transition-opacity duration-300 group-hover:text-teal-400">Collapse</span>
+                <nav className="flex-1">
+                    <SidebarItem icon={<ChessIcon />} label="Play" collapsed={collapsed} active />
+                    <SidebarItem icon={<WatchIcon />} label="Watch" collapsed={collapsed} />
+                    <SidebarItem icon={<NewsIcon />} label="News" collapsed={collapsed} />
+                    <SidebarItem icon={<UserIcon />} label="Profile" collapsed={collapsed} />
+                    <SidebarItem icon={<SettingsIcon />} label="Settings" collapsed={collapsed} />
+                    <SidebarItem icon={<SupportIcon />} label="Support" collapsed={collapsed} />
+                </nav>
+
+                <div className="p-4 space-y-2">
+                    {status === "connected" && address ? (
+                        <div className="flex items-center space-x-3 p-2 rounded-lg bg-gray-800">
+                            <div className="relative w-8 h-8 rounded-full overflow-hidden">
+                                <Image
+                                    src={`https://www.starknet.id/api/identicons/${address}`}
+                                    alt="Avatar"
+                                    fill
+                                    className="object-cover"
+                                />
+                            </div>
+                            {!collapsed && (
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-white truncate">
+                                        {truncateAddress(address)}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <Button 
+                            className="w-full bg-gradient-to-r from-teal-500 to-blue-700 hover:from-teal-600 hover:to-blue-800 text-white"
+                            onClick={() => setIsWalletModalOpen(true)}
+                        >
+                            {collapsed ? (
+                                <WalletIcon />
+                            ) : (
+                                <div className="flex items-center">
+                                    <WalletIcon />
+                                    <span className="ml-2">Connect Wallet</span>
+                                </div>
+                            )}
+                        </Button>
                     )}
-                </button>
+                    {!collapsed && (
+                        <>
+                            <Button 
+                                className="w-full bg-teal-600 hover:bg-teal-700"
+                                onClick={() => setIsSignInModalOpen(true)}
+                            >
+                                Sign Up
+                            </Button>
+                            <Button 
+                                variant="outline" 
+                                className="w-full border-gray-700 text-gray-300"
+                                onClick={() => setIsSignInModalOpen(true)}
+                            >
+                                Log In
+                            </Button>
+                        </>
+                    )}
+                </div>
+
+                <div className="border-t border-gray-800 p-2">
+                    <button
+                        onClick={() => setCollapsed(!collapsed)}
+                        className="p-2 w-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-800 rounded-md transition-all duration-300 group"
+                    >
+                        <div className={`transform transition-transform duration-300 ${collapsed ? "rotate-180" : ""}`}>
+                            <CollapseIcon />
+                        </div>
+                        {!collapsed && (
+                            <span className="ml-2 transition-opacity duration-300 group-hover:text-teal-400">Collapse</span>
+                        )}
+                    </button>
+                </div>
             </div>
-        </div>
+            <WalletConnectModal isOpen={isWalletModalOpen} onClose={() => setIsWalletModalOpen(false)} />
+            <SignInModal isOpen={isSignInModalOpen} onClose={() => setIsSignInModalOpen(false)} />
+        </>
     )
 }
 
