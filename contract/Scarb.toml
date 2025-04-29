@@ -7,11 +7,16 @@ edition = "2024_07"
 
 [dependencies]
 alexandria_math = { git = "https://github.com/keep-starknet-strange/alexandria" }
-starknet = "2.11.1"
+starknet = "2.9.2"
+openzeppelin_access = "0.20.0"  # Added for Ownable functionality
+openzeppelin_token = "0.20.0"   # Added for ERC20 interface
+openzeppelin_upgrades = "0.20.0" # Added for potential future upgrades
+openzeppelin_introspection = "0.20.0" # Added for interface detection
 
 [dev-dependencies]
-snforge_std = "0.38.2"
-assert_macros = "2.11.1"
+snforge_std = "0.39.0"
+assert_macros = "2.9.2"
+openzeppelin_utils = "0.20.0"   # Added for testing
 
 [[target.starknet-contract]]
 sierra = true
