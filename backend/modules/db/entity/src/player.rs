@@ -18,13 +18,69 @@ pub struct Model {
     pub username: String,
     pub email: String,
     pub password_hash: Vec<u8>,
-    pub biography: String,
-    pub country: String,
-    pub flair: String,
+    pub biography: Option<String>,
+    pub country: Option<String>,
+    pub flair: Option<String>,
     pub real_name: String,
-    pub location: String,
-    pub fide_rating: i32,
-    pub social_links: Vec<String>,
+    pub location: Option<String>,
+    pub fide_rating: Option<i32>,
+    pub social_links: Option<Vec<String>>,
+}
+
+#[derive(Serialize)]
+pub struct DisplayPlayer {
+    pub id: Uuid,
+    pub username: String,
+    pub email: String,
+    pub biography: Option<String>,
+    pub country: Option<String>,
+    pub flair: Option<String>,
+    pub real_name: String,
+}
+
+#[derive(Serialize)]
+pub struct UpdatedPlayer{
+    pub id: Uuid,
+    pub username: String,
+    pub email: String,
+    pub biography: Option<String>,
+    pub country: Option<String>,
+    pub flair: Option<String>,
+    pub real_name: String,
+    pub location: Option<String>,
+    pub fide_rating: Option<i32>,
+    pub social_links: Option<Vec<String>>,
+}
+
+impl From<Model> for UpdatedPlayer {
+    fn from(value: Model) -> Self {
+        Self {
+            id: value.id,
+            username: value.username,
+            email: value.email,
+            biography: value.biography,
+            country: value.country,
+            flair: value.flair,
+            real_name: value.real_name,
+            location: value.location,
+            fide_rating: value.fide_rating,
+            social_links: value.social_links
+        }
+    }
+}
+
+impl From<Model> for DisplayPlayer {
+    fn from(value: Model) -> Self {
+        Self {
+            id: value.id,
+            username: value.username,
+            email: value.email,
+            biography: value.biography,
+            country: value.country,
+            flair: value.flair,
+            real_name: value.real_name,
+        }
+    }
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
@@ -65,14 +121,16 @@ impl ColumnTrait for Column {
             Self::Username => ColumnType::String(StringLen::None).def().unique(),
             Self::Email => ColumnType::String(StringLen::None).def().unique(),
             Self::PasswordHash => ColumnType::VarBinary(StringLen::None).def(),
-            Self::Biography => ColumnType::Text.def(),
-            Self::Country => ColumnType::String(StringLen::None).def(),
-            Self::Flair => ColumnType::String(StringLen::None).def(),
+            Self::Biography => ColumnType::Text.def().null(),
+            Self::Country => ColumnType::String(StringLen::None).def().null(),
+            Self::Flair => ColumnType::String(StringLen::None).def().null(),
             Self::RealName => ColumnType::String(StringLen::None).def(),
-            Self::Location => ColumnType::String(StringLen::None).def(),
-            Self::FideRating => ColumnType::Integer.def(),
+            Self::Location => ColumnType::String(StringLen::None).def().null(),
+            Self::FideRating => ColumnType::Integer.def().null(),
             Self::SocialLinks => {
-                ColumnType::Array(RcOrArc::new(ColumnType::String(StringLen::None))).def()
+                ColumnType::Array(RcOrArc::new(ColumnType::String(StringLen::None)))
+                    .def()
+                    .null()
             }
         }
     }
