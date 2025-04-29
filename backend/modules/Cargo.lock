@@ -313,6 +313,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "api"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "db",
+ "dto",
+ "entity",
+ "error",
+ "serde",
+ "serde_json",
+ "service",
+ "uuid",
+]
+
+[[package]]
+name = "argon2"
+version = "0.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3c3610892ee6e0cbce8ae2700349fcf8f98adb0dbfbee85aec3c9179d29cc072"
+dependencies = [
+ "base64ct",
+ "blake2",
+ "cpufeatures",
+ "password-hash",
+]
+
+[[package]]
 name = "arrayvec"
 version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -557,6 +584,15 @@ dependencies = [
  "radium",
  "tap",
  "wyz",
+]
+
+[[package]]
+name = "blake2"
+version = "0.10.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "46502ad458c9a52b69d4d4d32775c788b7a1b85e8bc9d482d92250fc0e3f8efe"
+dependencies = [
+ "digest",
 ]
 
 [[package]]
@@ -977,6 +1013,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1aaf95b3e5c8f23aa320147307562d361db0ae0d51242340f558153b4eb2439b"
 
 [[package]]
+name = "dto"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "either"
 version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -995,6 +1039,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "entity"
+version = "0.1.0"
+dependencies = [
+ "sea-orm",
+ "serde",
+]
+
+[[package]]
 name = "equivalent"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1008,6 +1060,16 @@ checksum = "976dd42dc7e85965fe702eb8164f21f450704bdde31faefd6471dba214cb594e"
 dependencies = [
  "libc",
  "windows-sys 0.59.0",
+]
+
+[[package]]
+name = "error"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "sea-orm",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -1802,8 +1864,10 @@ name = "modules"
 version = "0.1.0"
 dependencies = [
  "actix-web",
+ "api",
  "async-std",
  "dotenv",
+ "error",
  "futures",
  "sea-orm",
  "sea-orm-migration",
@@ -2010,6 +2074,17 @@ dependencies = [
  "redox_syscall",
  "smallvec",
  "windows-targets 0.52.6",
+]
+
+[[package]]
+name = "password-hash"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "346f04948ba92c43e8469c1ee6736c7563d71012b17d40745260fe106aac2166"
+dependencies = [
+ "base64ct",
+ "rand_core 0.6.4",
+ "subtle",
 ]
 
 [[package]]
@@ -2694,6 +2769,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "service"
+version = "0.1.0"
+dependencies = [
+ "argon2",
+ "db",
+ "dto",
+ "entity",
+ "error",
+ "rand 0.8.5",
+ "sea-orm",
+ "uuid",
+]
+
+[[package]]
 name = "sha1"
 version = "0.10.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3369,6 +3458,7 @@ version = "1.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "458f7a779bf54acc9f347480ac654f68407d3aab21269a6e3c9f922acd9e2da9"
 dependencies = [
+ "getrandom 0.3.2",
  "serde",
 ]
 
