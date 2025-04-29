@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { useAppContext } from "@/context/walletContext"
 import { useInjectedConnectors, argent, braavos } from "@starknet-react/core"
-import { useState } from "react"
 import { Wallet } from "lucide-react"
 
 interface SignInModalProps {
@@ -17,24 +16,8 @@ export function SignInModal({ isOpen, onClose }: SignInModalProps) {
             braavos(),
         ]
     })
-    const [isSigning, setIsSigning] = useState(false)
 
     if (!isOpen) return null
-
-    const handleWalletSignIn = async () => {
-        if (!address) return
-        
-        setIsSigning(true)
-        try {
-            const message = `You are signing at ${Math.floor(Date.now() / 1000)}`
-           
-            onClose()
-        } catch (error) {
-            console.error("Failed to sign message:", error)
-        } finally {
-            setIsSigning(false)
-        }
-    }
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -61,6 +44,7 @@ export function SignInModal({ isOpen, onClose }: SignInModalProps) {
                                         className="w-full bg-gradient-to-r from-teal-500 to-blue-700 hover:from-teal-600 hover:to-blue-800"
                                         onClick={async () => {
                                             await connectWallet(connector)
+                                            onClose()
                                         }}
                                     >
                                         <Wallet className="w-5 h-5 mr-2" />
@@ -69,20 +53,9 @@ export function SignInModal({ isOpen, onClose }: SignInModalProps) {
                                 ))}
                             </div>
                         ) : (
-                            <Button
-                                className="w-full bg-gradient-to-r from-teal-500 to-blue-700 hover:from-teal-600 hover:to-blue-800"
-                                onClick={handleWalletSignIn}
-                                disabled={isSigning}
-                            >
-                                {isSigning ? (
-                                    "Signing..."
-                                ) : (
-                                    <>
-                                        <Wallet className="w-5 h-5 mr-2" />
-                                        Sign with Wallet
-                                    </>
-                                )}
-                            </Button>
+                            <div className="text-center text-white">
+                                <p>Connected: {address.slice(0, 6)}...{address.slice(-4)}</p>
+                            </div>
                         )}
                     </div>
                 </div>

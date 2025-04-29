@@ -90,14 +90,6 @@ export function GameSidebar({ collapsed, setCollapsed, isMobileView = false }: S
                 <div className="p-4 space-y-2">
                     {status === "connected" && address ? (
                         <div className="flex items-center space-x-3 p-2 rounded-lg bg-gray-800">
-                            <div className="relative w-8 h-8 rounded-full overflow-hidden">
-                                <Image
-                                    src={`https://www.starknet.id/api/identicons/${address}`}
-                                    alt="Avatar"
-                                    fill
-                                    className="object-cover"
-                                />
-                            </div>
                             {!collapsed && (
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-medium text-white truncate">
