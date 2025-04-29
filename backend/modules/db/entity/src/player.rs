@@ -25,63 +25,10 @@ pub struct Model {
     pub location: Option<String>,
     pub fide_rating: Option<i32>,
     pub social_links: Option<Vec<String>>,
+    pub is_enabled: bool
 }
 
-#[derive(Serialize)]
-pub struct DisplayPlayer {
-    pub id: Uuid,
-    pub username: String,
-    pub email: String,
-    pub biography: Option<String>,
-    pub country: Option<String>,
-    pub flair: Option<String>,
-    pub real_name: String,
-}
 
-#[derive(Serialize)]
-pub struct UpdatedPlayer{
-    pub id: Uuid,
-    pub username: String,
-    pub email: String,
-    pub biography: Option<String>,
-    pub country: Option<String>,
-    pub flair: Option<String>,
-    pub real_name: String,
-    pub location: Option<String>,
-    pub fide_rating: Option<i32>,
-    pub social_links: Option<Vec<String>>,
-}
-
-impl From<Model> for UpdatedPlayer {
-    fn from(value: Model) -> Self {
-        Self {
-            id: value.id,
-            username: value.username,
-            email: value.email,
-            biography: value.biography,
-            country: value.country,
-            flair: value.flair,
-            real_name: value.real_name,
-            location: value.location,
-            fide_rating: value.fide_rating,
-            social_links: value.social_links
-        }
-    }
-}
-
-impl From<Model> for DisplayPlayer {
-    fn from(value: Model) -> Self {
-        Self {
-            id: value.id,
-            username: value.username,
-            email: value.email,
-            biography: value.biography,
-            country: value.country,
-            flair: value.flair,
-            real_name: value.real_name,
-        }
-    }
-}
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
 pub enum Column {
@@ -96,6 +43,7 @@ pub enum Column {
     Location,
     FideRating,
     SocialLinks,
+    IsEnabled
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DerivePrimaryKey)]
@@ -126,6 +74,7 @@ impl ColumnTrait for Column {
             Self::Flair => ColumnType::String(StringLen::None).def().null(),
             Self::RealName => ColumnType::String(StringLen::None).def(),
             Self::Location => ColumnType::String(StringLen::None).def().null(),
+            Self::IsEnabled => ColumnType::Boolean.def().default(true),
             Self::FideRating => ColumnType::Integer.def().null(),
             Self::SocialLinks => {
                 ColumnType::Array(RcOrArc::new(ColumnType::String(StringLen::None)))
