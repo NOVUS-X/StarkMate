@@ -5,7 +5,7 @@ use dotenv::dotenv;
 use error::error::custom_json_error;
 use std::env;
 
-use crate::players::players::{add_player, update_player};
+use crate::players::{add_player, delete_player, get_player_by_id, update_player};
 
 /// Simple health-check endpoint
 async fn health() -> impl Responder {
@@ -36,7 +36,7 @@ pub async fn main() -> std::io::Result<()> {
             .route("/health", web::get().to(health))
             // Register greeting
             .route("/", web::get().to(greet))
-            .service(web::scope("/v1/players").service(add_player).service(crate::players::players::get_player_by_id).service(update_player))
+            .service(web::scope("/v1/players").service(add_player).service(get_player_by_id).service(update_player).service(delete_player))
     })
     .bind(&server_addr)?
     .run()
