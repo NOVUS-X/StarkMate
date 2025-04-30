@@ -22,7 +22,6 @@ impl fmt::Display for ApiError {
             ApiError::ValidationError(errs) => {
                 let mut s = String::new();
                 for (_, error_kind) in errs.errors() {
-                    println!("{:?}", error_kind);
                     match error_kind {
                         ValidationErrorsKind::Field(field) => s.push_str(format!("{}. ", field[0].message.clone().unwrap()).as_str()),
                         _ => todo!()
