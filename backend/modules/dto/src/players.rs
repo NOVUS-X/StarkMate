@@ -10,6 +10,18 @@ pub struct NewPlayer {
     pub real_name: String,
 }
 
+impl NewPlayer {
+    pub fn test_player() -> Self {
+        let rnd: i32 = rand::random();
+        Self{
+            username: format!("Player {}", rnd),
+            email: format!("player{}@gmail.com", rnd),
+            password: format!("PasswordIsVeryStrong"),
+            real_name: format!("A new player")
+        }
+    }
+}
+
 #[derive(Debug, Deserialize, Serialize)]
 pub struct UpdatePlayer {
     pub username: Option<String>,
