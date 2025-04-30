@@ -1,14 +1,16 @@
 use core::fmt;
 
-use actix_web::{error::JsonPayloadError, Error, HttpRequest, HttpResponse};
+use actix_web::{Error, HttpRequest, HttpResponse, error::JsonPayloadError};
 use sea_orm::DbErr;
 use serde_json::json;
+use validator::{ValidationErrors, ValidationErrorsKind};
 
 #[derive(Debug)]
-pub enum ApiError{
+pub enum ApiError {
     InvalidCredentials,
     DatabaseError(DbErr),
-    NotFound(String)
+    NotFound(String),
+    ValidationError(ValidationErrors),
 }
 
 impl fmt::Display for ApiError {
@@ -16,7 +18,18 @@ impl fmt::Display for ApiError {
         match self {
             ApiError::InvalidCredentials => write!(f, "Invalid credentials"),
             ApiError::NotFound(v) => write!(f, "{} not found", v),
-            ApiError::DatabaseError(err) => write!(f,"Database error {}", err.to_string()),
+            ApiError::DatabaseError(err) => write!(f, "Database error {}", err.to_string()),
+            ApiError::ValidationError(errs) => {
+                let mut s = String::new();
+                for (_, error_kind) in errs.errors() {
+                    println!("{:?}", error_kind);
+                    match error_kind {
+                        ValidationErrorsKind::Field(field) => s.push_str(format!("{}. ", field[0].message.clone().unwrap()).as_str()),
+                        _ => todo!()
+                    }
+                }
+                write!(f,"{}",s)
+            }
         }
     }
 }
@@ -35,7 +48,11 @@ impl ApiError {
             ApiError::DatabaseError(_) => HttpResponse::InternalServerError().json(json!({
                 "error": self.to_string(),
                 "code":500
-            }))
+            })),
+            ApiError::ValidationError(_) => HttpResponse::BadRequest().json(json!({
+                "error": self.to_string(),
+                "code":400
+            })),
         }
     }
 }

@@ -4,9 +4,14 @@ use actix_web::{
 };
 use dto::{
     players::{DisplayPlayer, NewPlayer, UpdatePlayer, UpdatedPlayer},
-    responses::{InvalidCredentialsResponse, NotFoundResponse, PlayerAdded, PlayerDeleted, PlayerFound, PlayerUpdated},
+    responses::{
+        InvalidCredentialsResponse, NotFoundResponse, PlayerAdded, PlayerDeleted, PlayerFound,
+        PlayerUpdated,
+    },
 };
+use error::error::ApiError;
 use serde_json::json;
+use validator::Validate;
 
 use service::players::{
     add_player as add_new_player, delete_player as delete_player_by_id,
@@ -24,16 +29,21 @@ use uuid::Uuid;
 )]
 #[post("")]
 pub async fn add_player(payload: Json<NewPlayer>) -> HttpResponse {
-    let player = add_new_player(payload.0).await;
+    match payload.0.validate() {
+        Ok(_) => {
+            let player = add_new_player(payload.0).await;
 
-    match player {
-        Ok(plyr) => HttpResponse::Ok().json(json!({
-            "message":"New player added",
-            "body":{
-                "player": DisplayPlayer::from(plyr)
+            match player {
+                Ok(plyr) => HttpResponse::Ok().json(json!({
+                    "message":"New player added",
+                    "body":{
+                        "player": DisplayPlayer::from(plyr)
+                    }
+                })),
+                Err(err) => err.error_response(),
             }
-        })),
-        Err(err) => err.error_response(),
+        }
+        Err(errors) => ApiError::ValidationError(errors).error_response()
     }
 }
 

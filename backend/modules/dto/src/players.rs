@@ -2,12 +2,24 @@ use entity::player::Model;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use uuid::Uuid;
+use validator::Validate;
 
-#[derive(Debug, Deserialize, Serialize, ToSchema)]
+#[derive(Debug, Deserialize, Serialize, ToSchema, Validate)]
 pub struct NewPlayer {
+    #[validate(length(min = 3, max = 20, message = "Username must be between 3 and 20 characters"))]
     pub username: String,
+    
+    #[validate(email(message = "Must be a valid email address"))]
     pub email: String,
+    
+    #[validate(length(
+        min = 8, 
+        max = 64,
+        message = "Password must be between 8 and 64 characters"
+    ))]
     pub password: String,
+    
+    #[validate(length(max = 100, message = "Real name must be less than 100 characters"))]
     pub real_name: String,
 }
 
