@@ -5,7 +5,7 @@ use dotenv::dotenv;
 use error::error::custom_json_error;
 use utoipa_swagger_ui::SwaggerUi;
 use std::env;
-use crate::players::{add_player, delete_player, get_player_by_id, update_player};
+use crate::players::{add_player, delete_player, find_player_by_id, update_player};
 
 use utoipa::OpenApi;
 
@@ -13,7 +13,7 @@ use utoipa::OpenApi;
 #[openapi(
     paths(
         crate::players::add_player,
-        crate::players::get_player_by_id,
+        crate::players::find_player_by_id,
         crate::players::update_player,
         crate::players::delete_player
     ),
@@ -57,7 +57,7 @@ pub async fn main() -> std::io::Result<()> {
             .service(
                 web::scope("/v1/players")
                     .service(add_player)
-                    .service(get_player_by_id)
+                    .service(find_player_by_id)
                     .service(update_player)
                     .service(delete_player),
             )
