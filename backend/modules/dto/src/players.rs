@@ -1,8 +1,9 @@
 use entity::player::Model;
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 use uuid::Uuid;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
 pub struct NewPlayer {
     pub username: String,
     pub email: String,
@@ -22,7 +23,7 @@ impl NewPlayer {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
 pub struct UpdatePlayer {
     pub username: Option<String>,
     pub real_name: Option<String>,
@@ -34,8 +35,9 @@ pub struct UpdatePlayer {
     pub social_links: Option<Vec<String>>,
 }
 
-#[derive(Serialize)]
+#[derive(Debug,Serialize, ToSchema)]
 pub struct DisplayPlayer {
+    #[schema(value_type = String, format = "uuid")]
     pub id: Uuid,
     pub username: String,
     pub email: String,
@@ -45,8 +47,9 @@ pub struct DisplayPlayer {
     pub real_name: String,
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize, ToSchema)]
 pub struct UpdatedPlayer {
+    #[schema(value_type = String, format = "uuid")]
     pub id: Uuid,
     pub username: String,
     pub email: String,
