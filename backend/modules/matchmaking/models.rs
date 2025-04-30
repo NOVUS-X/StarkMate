@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::time::{Duration, Instant};
 use uuid::Uuid;
+use chrono::{DateTime, Utc};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum MatchType {
@@ -14,7 +14,7 @@ pub enum MatchType {
 pub struct Player {
     pub wallet_address: String,
     pub elo: u32,
-    pub join_time: Instant,
+    pub join_time: DateTime<Utc>, 
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -32,7 +32,7 @@ pub struct Match {
     pub player1: Player,
     pub player2: Player,
     pub match_type: MatchType,
-    pub created_at: Instant,
+    pub created_at: DateTime<Utc>, 
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

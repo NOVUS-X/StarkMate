@@ -1,9 +1,10 @@
 use actix_web::{web, HttpResponse, Responder};
+use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use super::models::*;
-use super::service::MatchmakingService;
+use super::service::{MatchmakingService};
 
 #[derive(Debug, Deserialize)]
 pub struct JoinQueueRequest {
@@ -48,13 +49,13 @@ async fn join_queue(
     req: web::Json<JoinQueueRequest>,
 ) -> impl Responder {
     let request_id = Uuid::new_v4();
-    
+
     let player = Player {
         wallet_address: req.wallet_address.clone(),
         elo: req.elo,
-        join_time: std::time::Instant::now(),
+        join_time: Utc::now(),
     };
-    
+
     let match_request = MatchRequest {
         id: request_id,
         player,
@@ -62,9 +63,8 @@ async fn join_queue(
         invite_address: req.invite_address.clone(),
         max_elo_diff: req.max_elo_diff,
     };
-    
+
     let response = service.join_queue(match_request);
-    
     HttpResponse::Ok().json(response)
 }
 
@@ -73,7 +73,7 @@ async fn get_status(
     path: web::Path<Uuid>,
 ) -> impl Responder {
     let request_id = path.into_inner();
-    
+
     if let Some(status) = service.get_queue_status(request_id) {
         HttpResponse::Ok().json(StatusResponse {
             status: "In queue".to_string(),
@@ -92,7 +92,7 @@ async fn cancel_request(
     req: web::Json<CancelRequest>,
 ) -> impl Responder {
     let success = service.cancel_request(req.request_id);
-    
+
     if success {
         HttpResponse::Ok().json(serde_json::json!({
             "status": "Request cancelled successfully"
@@ -111,15 +111,14 @@ async fn accept_invite(
     let player = Player {
         wallet_address: req.wallet_address.clone(),
         elo: req.elo,
-        join_time: std::time::Instant::now(),
+        join_time: Utc::now(),
     };
-    
-    if let Some(response) = service.accept_private_invite(req.inviter_request_id, player) {
-        HttpResponse::Ok().json(response)
-    } else {
-        HttpResponse::NotFound().json(serde_json::json!({
+
+    match service.accept_private_invite(req.inviter_request_id, player) {
+        Some(response) => HttpResponse::Ok().json(response),
+        None => HttpResponse::NotFound().json(serde_json::json!({
             "status": "Invite not found"
-        }))
+        })),
     }
 }
 
@@ -128,7 +127,7 @@ async fn get_match(
     path: web::Path<Uuid>,
 ) -> impl Responder {
     let match_id = path.into_inner();
-    
+
     if let Some(match_data) = service.get_match(match_id) {
         HttpResponse::Ok().json(match_data)
     } else {
