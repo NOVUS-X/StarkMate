@@ -42,7 +42,7 @@ pub async fn get_player_by_id(id: Uuid) -> Result<player::Model, ApiError>{
 
     match user {
         Some(usr) => Ok(usr),
-        None => Err(ApiError::NotFound(format!("Player {} not found", id).to_string()))
+        None => Err(ApiError::NotFound(format!("Player {}", id).to_string()))
     }
 }
 
