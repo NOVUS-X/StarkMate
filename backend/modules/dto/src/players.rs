@@ -35,8 +35,9 @@ impl NewPlayer {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, ToSchema)]
+#[derive(Debug, Deserialize, Serialize, ToSchema, Validate)]
 pub struct UpdatePlayer {
+    #[validate(length(min = 3, max = 20, message = "Username must be between 3 and 20 characters"))]
     pub username: Option<String>,
     pub real_name: Option<String>,
     pub biography: Option<String>,
