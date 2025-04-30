@@ -2,7 +2,10 @@ use actix_web::{
     HttpResponse, delete, get, post, put,
     web::{Json, Path},
 };
-use dto::players::{DisplayPlayer, NewPlayer, UpdatePlayer, UpdatedPlayer};
+use dto::{
+    players::{DisplayPlayer, NewPlayer, UpdatePlayer, UpdatedPlayer},
+    responses::{InvalidCredentialsResponse, NotFoundResponse, PlayerAdded, PlayerDeleted, PlayerFound, PlayerUpdated},
+};
 use serde_json::json;
 
 use service::players::{
@@ -11,6 +14,14 @@ use service::players::{
 };
 use uuid::Uuid;
 
+#[utoipa::path(
+    post,
+    path = "/v1/players",
+    responses(
+        (status = 200, description = "New player added", body=PlayerAdded),
+        (status = 400, description = "Bad request", body=InvalidCredentialsResponse)
+    )
+)]
 #[post("")]
 pub async fn add_player(payload: Json<NewPlayer>) -> HttpResponse {
     let player = add_new_player(payload.0).await;
@@ -26,6 +37,17 @@ pub async fn add_player(payload: Json<NewPlayer>) -> HttpResponse {
     }
 }
 
+#[utoipa::path(
+    get,
+    path = "/v1/players/{id}",
+    params(
+        ("id" = String, Path, description = "Player ID in UUID format", format="uuid")
+    ),
+    responses(
+        (status = 200, description = "Player found", body=PlayerFound),
+        (status = 404, description = "Not found", body=NotFoundResponse)
+    )
+)]
 #[get("/{id}")]
 pub async fn get_player_by_id(id: Path<Uuid>) -> HttpResponse {
     let player = get_single_player_by_id(id.into_inner()).await;
@@ -41,6 +63,17 @@ pub async fn get_player_by_id(id: Path<Uuid>) -> HttpResponse {
     }
 }
 
+#[utoipa::path(
+    put,
+    path = "/v1/players/{id}",
+    params(
+        ("id" = String, Path, description = "Player ID in UUID format", format="uuid")
+    ),
+    responses(
+        (status = 200, description = "Player updated", body=PlayerUpdated),
+        (status = 404, description = "Not found", body=NotFoundResponse)
+    )
+)]
 #[put("/{id}")]
 pub async fn update_player(id: Path<Uuid>, payload: Json<UpdatePlayer>) -> HttpResponse {
     let player = update_player_by_id(id.into_inner(), payload.0).await;
@@ -56,6 +89,17 @@ pub async fn update_player(id: Path<Uuid>, payload: Json<UpdatePlayer>) -> HttpR
     }
 }
 
+#[utoipa::path(
+    delete,
+    path = "/v1/players/{id}",
+    params(
+        ("id" = String, Path, description = "Player ID in UUID format", format="uuid")
+    ),
+    responses(
+        (status = 200, description = "Player deleted", body=PlayerDeleted),
+        (status = 404, description = "Not found", body=NotFoundResponse)
+    )
+)]
 #[delete("/{id}")]
 pub async fn delete_player(id: Path<Uuid>) -> HttpResponse {
     match delete_player_by_id(id.into_inner()).await {
