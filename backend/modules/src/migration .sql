@@ -1,31 +1,17 @@
--- ============================================
--- StarkMate: Create 'games' table for chess matches
+-- backend/modules/src/migration.sql
 
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- Assuming this is the relevant game creation table schema
+CREATE TYPE game_variant AS ENUM ('standard', 'chess960', 'three_check');
 
--- ============================================
--- Drop table only if you're testing locally
--- WARNING: Remove this in production!
--- ============================================
--- DROP TABLE IF EXISTS games;
-
--- ============================================
--- Create 'games' table
--- ============================================
 CREATE TABLE IF NOT EXISTS games (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    white_player TEXT NOT NULL,
-    black_player TEXT NOT NULL,
-    variant TEXT NOT NULL CHECK (variant IN ('standard', 'chess960', 'three-check')),
+    id UUID PRIMARY KEY,
+    white_player_id UUID NOT NULL,
+    black_player_id UUID,
+    variant game_variant NOT NULL,
     fen TEXT NOT NULL,
-    rated BOOLEAN NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    rated BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT now()
 );
-
--- ============================================
--- Indexing for better performance on listings
--- ============================================
-CREATE INDEX IF NOT EXISTS idx_games_created_at ON games(created_at);
 
 
 

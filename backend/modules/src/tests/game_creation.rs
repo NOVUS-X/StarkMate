@@ -1,72 +1,108 @@
+// backend/modules/src/tests/game_creation.rs
+
 use actix_web::{test, App};
-use starkmate_backend::routes::games::create_game;
-use starkmate_backend::models::game::{CreateGameRequest, GameVariant, TimeControl};
-use sqlx::{PgPool, postgres::PgPoolOptions};
+use serde_json::json;
+use sqlx::{PgPool, PgPoolOptions};
+use uuid::Uuid;
 
-#[actix_rt::test]
-async fn test_create_standard_game_two_players() {
-    let pool = setup_test_db().await;
+use crate::routes::game_routes;
 
-    let app = test::init_service(
-        App::new()
-            .app_data(actix_web::web::Data::new(pool.clone()))
-            .service(create_game)
-    ).await;
-
-    let payload = CreateGameRequest {
-        players: vec!["alice".to_string(), "bob".to_string()],
-        variant: GameVariant::Standard,
-        time_control: TimeControl {
-            initial: 600,
-            increment: 5,
-            delay_type: None,
-        },
-        rated: true,
-    };
-
-    let req = test::TestRequest::post()
-        .uri("/games/new")
-        .set_json(&payload)
-        .to_request();
-
-    let resp = test::call_service(&app, req).await;
-    assert!(resp.status().is_success());
-}
-
-#[actix_rt::test]
-async fn test_create_chess960_game_with_ai() {
-    let pool = setup_test_db().await;
-
-    let app = test::init_service(
-        App::new()
-            .app_data(actix_web::web::Data::new(pool.clone()))
-            .service(create_game)
-    ).await;
-
-    let payload = CreateGameRequest {
-        players: vec!["human_player".to_string()],
-        variant: GameVariant::Chess960,
-        time_control: TimeControl {
-            initial: 300,
-            increment: 2,
-            delay_type: None,
-        },
-        rated: false,
-    };
-
-    let req = test::TestRequest::post()
-        .uri("/games/new")
-        .set_json(&payload)
-        .to_request();
-
-    let resp = test::call_service(&app, req).await;
-    assert!(resp.status().is_success());
-}
-
-// Helps to test DB connection (can be from test-specific db)
 async fn setup_test_db() -> PgPool {
     PgPoolOptions::new()
         .connect("postgres://user:pass@localhost/starkmate_test")
         .await
         .expect("Test DB connection failed")
+}
+
+#[actix_rt::test]
+async fn test_create_game_success() {
+    let db_pool = setup_test_db().await;
+
+    let app = test::init_service(
+        App::new()
+            .app_data(actix_web::web::Data::new(db_pool.clone()))
+            .configure(game_routes),
+    )
+    .await;
+
+    let req_body = json!({
+        "players": [Uuid::new_v4(), Uuid::new_v4()],
+        "variant": "chess960",
+        "time_control": { "initial": 300, "increment": 5, "delay_type": "none" },
+        "rated": true
+    });
+
+    let req = test::TestRequest::post()
+        .uri("/games/new")
+        .set_json(&req_body)
+        .to_request();
+
+    let resp = test::call_service(&app, req).await;
+    assert!(resp.status().is_success());
+
+    let body: serde_json::Value = test::read_body_json(resp).await;
+    assert!(body.get("game_id").is_some());
+    assert!(body.get("session_token").is_some());
+    assert!(body.get("initial_state").is_some());
+    assert!(body.get("player_assignments").is_some());
+    assert!(body.get("join_url").is_some());
+}
+
+#[actix_rt::test]
+async fn test_create_game_invalid_variant() {
+    let db_pool = setup_test_db().await;
+
+    let app = test::init_service(
+        App::new()
+            .app_data(actix_web::web::Data::new(db_pool.clone()))
+            .configure(game_routes),
+    )
+    .await;
+
+    let req_body = json!({
+        "players": [Uuid::new_v4()],
+        "variant": "invalid_variant",
+        "time_control": { "initial": 300, "increment": 5, "delay_type": "none" },
+        "rated": false
+    });
+
+    let req = test::TestRequest::post()
+        .uri("/games/new")
+        .set_json(&req_body)
+        .to_request();
+
+    let resp = test::call_service(&app, req).await;
+    assert_eq!(resp.status(), 400);
+
+    let body = test::read_body(resp).await;
+    assert!(std::str::from_utf8(&body).unwrap().contains("Invalid game variant"));
+}
+
+#[actix_rt::test]
+async fn test_create_game_missing_players() {
+    let db_pool = setup_test_db().await;
+
+    let app = test::init_service(
+        App::new()
+            .app_data(actix_web::web::Data::new(db_pool.clone()))
+            .configure(game_routes),
+    )
+    .await;
+
+    let req_body = json!({
+        "variant": "standard",
+        "time_control": { "initial": 300, "increment": 5, "delay_type": "none" },
+        "rated": false
+    });
+
+    let req = test::TestRequest::post()
+        .uri("/games/new")
+        .set_json(&req_body)
+        .to_request();
+
+    let resp = test::call_service(&app, req).await;
+    assert_eq!(resp.status(), 400);
+
+    let body = test::read_body(resp).await;
+    assert!(std::str::from_utf8(&body).unwrap().contains("Missing required field: players"));
 }

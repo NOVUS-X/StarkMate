@@ -16,7 +16,8 @@ pub async fn create_game_service(
     let variant_str = match payload.variant {
         GameVariant::Standard => "standard",
         GameVariant::Chess960 => "chess960",
-        GameVariant::ThreeCheck => "three_check",
+        GameVariant::ThreeCheck => "three-check",
+        
     };
 
     let initial_state = generate_fen(variant_str);
