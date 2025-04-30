@@ -1,5 +1,5 @@
 use core::fmt;
-
+use argon2::password_hash::Error as Argon2HashError;
 use actix_web::{Error, HttpRequest, HttpResponse, error::JsonPayloadError};
 use sea_orm::DbErr;
 use serde_json::json;
@@ -11,6 +11,19 @@ pub enum ApiError {
     DatabaseError(DbErr),
     NotFound(String),
     ValidationError(ValidationErrors),
+    PasswordHashError(Argon2HashError)
+}
+
+impl From<DbErr> for ApiError {
+    fn from(value: DbErr) -> Self {
+        Self::DatabaseError(value)
+    }
+}
+
+impl From<Argon2HashError> for ApiError {
+    fn from(value: Argon2HashError) -> Self {
+        Self::PasswordHashError(value)
+    }
 }
 
 impl fmt::Display for ApiError {
@@ -23,12 +36,27 @@ impl fmt::Display for ApiError {
                 let mut s = String::new();
                 for (_, error_kind) in errs.errors() {
                     match error_kind {
-                        ValidationErrorsKind::Field(field) => s.push_str(format!("{}. ", field[0].message.clone().unwrap()).as_str()),
-                        _ => todo!()
+                        ValidationErrorsKind::Field(field) => {
+                            s.push_str(format!("{}. ", field[0].message.clone().unwrap()).as_str())
+                        }
+                        ValidationErrorsKind::Struct(strct) => {
+                            s.push_str(format!("{:?} ", strct.errors().clone()).as_str())
+                        }
+                        ValidationErrorsKind::List(tree) => s.push_str(
+                            format!(
+                                "{:?}",
+                                tree.iter().map(|(_, box_errors)| format!(
+                                    "{:?}",
+                                    box_errors.errors().clone()
+                                ))
+                            )
+                            .as_str(),
+                        ),
                     }
                 }
-                write!(f,"{}",s)
-            }
+                write!(f, "{}", s)
+            },
+            ApiError::PasswordHashError(err) => write!(f,"Unable to hash password: {}", err.to_string())
         }
     }
 }
@@ -52,6 +80,10 @@ impl ApiError {
                 "error": self.to_string(),
                 "code":400
             })),
+            ApiError::PasswordHashError(_) => HttpResponse::InternalServerError().json(json!({
+                "error": self.to_string(),
+                "code":500
+            }))
         }
     }
 }
