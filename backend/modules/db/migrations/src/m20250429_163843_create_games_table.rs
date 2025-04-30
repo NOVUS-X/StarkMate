@@ -1,12 +1,6 @@
 use sea_orm_migration::{prelude::*, schema::*};
-
-// Need to import the Player enum from the other migration or a shared module
-// For simplicity here, we redefine it. Ideally, it should be shared.
-#[derive(DeriveIden)]
-enum Player {
-    Table,
-    Id,
-}
+// Import Player Iden from the player creation migration
+use crate::m20250428_121011_create_players_table::Player;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -14,38 +8,50 @@ pub struct Migration;
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        // Placeholder for UP migration
-        // Create the 'game' table
+        // Ensure the schema exists
+        manager
+            .create_schema(Schema::new("smdb").if_not_exists())
+            .await?;
+
+        // Create the game table within the smdb schema
         manager
             .create_table(
                 Table::create()
-                    .table(Game::Table)
+                    .table((Smdb, Game::Table))
                     .if_not_exists()
-                    .col(pk_uuid(Game::Id))
+                    .col(
+                        ColumnDef::new(Game::Id)
+                            .uuid()
+                            .not_null()
+                            .primary_key(),
+                    )
                     .col(ColumnDef::new(Game::WhitePlayer).uuid().not_null())
                     .col(ColumnDef::new(Game::BlackPlayer).uuid().not_null())
-                    .col(text(Game::Fen).not_null())
+                    .col(ColumnDef::new(Game::Fen).text().not_null())
                     .col(ColumnDef::new(Game::Pgn).json_binary().not_null())
-                    .col(string_len(Game::Result, 8).not_null())
-                    .col(string_len(Game::Variant, 16).not_null())
+                    .col(ColumnDef::new(Game::Result).string().not_null())
+                    .col(ColumnDef::new(Game::Variant).string().not_null())
                     .col(
                         ColumnDef::new(Game::StartedAt)
                             .timestamp_with_time_zone()
-                            .not_null()
-                            .extra("DEFAULT CURRENT_TIMESTAMP".to_string()),
+                            .not_null(),
                     )
-                    .col(integer(Game::DurationSec).not_null())
+                    .col(ColumnDef::new(Game::DurationSec).integer().not_null())
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_game_white_player")
-                            .from(Game::Table, Game::WhitePlayer)
-                            .to(Player::Table, Player::Id),
+                            .from((Smdb, Game::Table), Game::WhitePlayer)
+                            .to((Smdb, Player::Table), Player::Id) // Use imported Player Iden and schema
+                            .on_delete(ForeignKeyAction::Cascade) // Add ON DELETE CASCADE
+                            .on_update(ForeignKeyAction::Cascade), // Add ON UPDATE CASCADE
                     )
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_game_black_player")
-                            .from(Game::Table, Game::BlackPlayer)
-                            .to(Player::Table, Player::Id),
+                            .from((Smdb, Game::Table), Game::BlackPlayer)
+                            .to((Smdb, Player::Table), Player::Id) // Use imported Player Iden and schema
+                            .on_delete(ForeignKeyAction::Cascade) // Add ON DELETE CASCADE
+                            .on_update(ForeignKeyAction::Cascade), // Add ON UPDATE CASCADE
                     )
                     .to_owned(),
             )
@@ -64,7 +70,7 @@ impl MigrationTrait for Migration {
             .create_index(
                 Index::create()
                     .name("idx_games_started_at")
-                    .table(Game::Table)
+                    .table((Smdb, Game::Table))
                     .col(Game::StartedAt)
                     .to_owned(),
             )
@@ -74,7 +80,7 @@ impl MigrationTrait for Migration {
             .create_index(
                 Index::create()
                     .name("idx_games_variant")
-                    .table(Game::Table)
+                    .table((Smdb, Game::Table))
                     .col(Game::Variant)
                     .to_owned(),
             )
@@ -86,19 +92,17 @@ impl MigrationTrait for Migration {
             .execute_unprepared(r#"CREATE INDEX "idx_games_pgn_gin" ON "game" USING GIN ("pgn")"#)
             .await?;
 
+        println!("Game table created successfully.");
         Ok(())
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        // Placeholder for DOWN migration
-        // Drop indexes, constraints, foreign keys, and table in reverse order
-
         // Drop indexes (including GIN)
         manager
-            .drop_index(Index::drop().name("idx_games_started_at").table(Game::Table).to_owned())
+            .drop_index(Index::drop().name("idx_games_started_at").table((Smdb, Game::Table)).to_owned())
             .await?;
         manager
-            .drop_index(Index::drop().name("idx_games_variant").table(Game::Table).to_owned())
+            .drop_index(Index::drop().name("idx_games_variant").table((Smdb, Game::Table)).to_owned())
             .await?;
         manager
             .get_connection()
@@ -114,19 +118,22 @@ impl MigrationTrait for Migration {
 
         // Drop Foreign Keys (use the names defined in `up`)
         manager
-            .drop_foreign_key(ForeignKey::drop().name("fk_game_white_player").table(Game::Table).to_owned())
+            .drop_foreign_key(ForeignKey::drop().name("fk_game_white_player").table((Smdb, Game::Table)).to_owned())
             .await?;
         manager
-            .drop_foreign_key(ForeignKey::drop().name("fk_game_black_player").table(Game::Table).to_owned())
+            .drop_foreign_key(ForeignKey::drop().name("fk_game_black_player").table((Smdb, Game::Table)).to_owned())
             .await?;
 
         // Drop the table
         manager
-            .drop_table(Table::drop().table(Game::Table).to_owned())
-            .await
+            .drop_table(Table::drop().table((Smdb, Game::Table)).to_owned())
+            .await?;
+        println!("Game table dropped successfully.");
+        Ok(())
     }
 }
 
+// Define the Game table structure for use within this migration
 #[derive(DeriveIden)]
 enum Game {
     Table,
@@ -139,4 +146,15 @@ enum Game {
     Variant,
     StartedAt,
     DurationSec,
-} 
+}
+
+// Define the schema identifier
+#[derive(DeriveIden)]
+struct Smdb;
+
+// Remove the local Player enum definition
+// #[derive(DeriveIden)]
+// enum Player {
+//     Table,
+//     Id,
+// } 

@@ -24,35 +24,34 @@ async fn main() -> Result<(), DbErr> {
     // Use execute_unprepared for TRUNCATE as it's not directly supported by query builder
     // Make sure the schema is correct if not using the default 'public'
     // Using CASCADE to handle foreign keys if necessary
-    db.execute_unprepared("TRUNCATE TABLE public.game, public.player CASCADE;").await?;
+    db.execute_unprepared("TRUNCATE TABLE smdb.game, smdb.player CASCADE;").await?;
     println!("Existing data cleared.");
 
     println!("Seeding database...");
 
     // --- Seed Players ---
-    let mut player_ids = Vec::with_capacity(NUM_PLAYERS);
     println!("Seeding {} players...", NUM_PLAYERS);
-    for i in 0..NUM_PLAYERS {
+    let models: Vec<player::ActiveModel> = (0..NUM_PLAYERS).map(|i| {
         let player_id = Uuid::new_v4();
-        let player = player::ActiveModel {
+        player::ActiveModel {
             id: Set(player_id),
             username: Set(format!("Player_{}", i + 1)),
             email: Set(format!("player{}@example.com", i + 1)),
-            password_hash: Set(b"dummy_hash".to_vec()), // Dummy hash
+            password_hash: Set(b"dummy_hash".to_vec()),
             biography: Set(format!("Biography for Player {}", i + 1)),
-            country: Set("USA".to_string()), // Dummy country
-            flair: Set("GM".to_string()), // Dummy flair
+            country: Set("USA".to_string()),
+            flair: Set("GM".to_string()),
             real_name: Set(format!("Real Name {}", i + 1)),
-            location: Set("New York, NY".to_string()), // Dummy location
-            fide_rating: Set(rand::thread_rng().gen_range(800..2800)), // Use fide_rating
-            social_links: Set(vec!["http://twitter.com/player".to_string()]), // Dummy links
-        };
-        Player::insert(player).exec(&db).await?;
-        player_ids.push(player_id);
-        if (i + 1) % 20 == 0 {
-            println!("  Inserted {}/{} players", i + 1, NUM_PLAYERS);
+            location: Set("New York, NY".to_string()),
+            fide_rating: Set(rand::thread_rng().gen_range(800..2800)),
+            social_links: Set(vec!["http://twitter.com/player".to_string()]),
         }
-    }
+    }).collect();
+
+    // Extract player IDs before inserting for game seeding
+    let player_ids: Vec<Uuid> = models.iter().map(|m| m.id.clone().unwrap()).collect();
+
+    Player::insert_many(models).exec(&db).await?;
     println!("Players seeded successfully.");
 
     // --- Seed Games ---
@@ -78,7 +77,7 @@ async fn main() -> Result<(), DbErr> {
             white_player: Set(white_player_id),
             black_player: Set(black_player_id),
             fen: Set(STARTING_FEN.to_string()), // Simple FEN for now
-            pgn: Set(json!({ "moves": "e4 c5 ..." })), // Dummy PGN
+            pgn: Set(json!({ "moves": "e4 c5 ...", "final_ply": rng.gen_range(10..150) })), // Added final_ply for benchmark
             result: Set(results.choose(&mut rng).unwrap().to_string()),
             variant: Set(variants.choose(&mut rng).unwrap().to_string()),
             started_at: Set(started_at.into()),

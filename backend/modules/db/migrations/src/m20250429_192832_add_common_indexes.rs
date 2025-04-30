@@ -1,4 +1,5 @@
-use sea_orm_migration::{prelude::*, schema::*};
+use sea_orm_migration::prelude::*;
+// use schema::*; // Removed this line
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -30,12 +31,24 @@ impl MigrationTrait for Migration {
             .create_index(
                 Index::create()
                     .if_not_exists()
-                    .name("idx_game_id")
+                    .name("idx_game_pgn")
                     .table(Game::Table)
-                    .col(Game::Id)
+                    .col((Game::Pgn, IndexType::Gin))
                     .to_owned(),
             )
             .await?;
+        manager
+            .create_index(
+                Index::create()
+                    .if_not_exists()
+                    .name("idx_player_username")
+                    .table(Player::Table)
+                    .col(Player::Username)
+                    .unique()
+                    .to_owned(),
+            )
+            .await?;
+        println!("Common indexes created successfully.");
         Ok(())
     }
 
@@ -47,7 +60,15 @@ impl MigrationTrait for Migration {
             .drop_index(Index::drop().name("idx_game_black_player").table(Game::Table).to_owned())
             .await?;
         manager
-            .drop_index(Index::drop().name("idx_game_id").table(Game::Table).to_owned())
+            .drop_index(Index::drop().name("idx_game_pgn").table(Game::Table).to_owned())
+            .await?;
+        manager
+            .drop_index(
+                Index::drop()
+                    .name("idx_player_username")
+                    .table(Player::Table)
+                    .to_owned(),
+            )
             .await?;
         Ok(())
     }

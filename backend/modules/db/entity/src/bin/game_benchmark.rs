@@ -182,10 +182,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // 3. Query PGN JSONB using GIN index (PostgreSQL specific operators)
     // Example: Find games where PGN contains the key "final_ply" with a value > 50
-    // Uses the @> (contains) operator and jsonb path query `'$."final_ply" > 50'`
+    // Uses the @> (contains) operator and jsonb path query `'$."final_ply" > 50'` -- Corrected filter
     let query_start = Instant::now();
     let games_by_pgn_content = Game::find()
-        .filter(Expr::cust("\"pgn\" @> '{\"final_ply\": true}'::jsonb AND (\"pgn\" ->> 'final_ply')::int > 50"))
+        // Original filter: .filter(Expr::cust("\"pgn\" @> '{\"final_ply\": true}'::jsonb AND (\"pgn\" ->> 'final_ply')::int > 50"))
+        .filter(Expr::cust("(\"pgn\" ->> 'final_ply')::int > 50")) // Corrected filter
         // Alternative using jsonb_path_query_first:
         // .filter(Expr::cust("jsonb_path_query_first(\"pgn\", '$.final_ply ? (@ > 50)') IS NOT NULL"))
         .limit(1000)
