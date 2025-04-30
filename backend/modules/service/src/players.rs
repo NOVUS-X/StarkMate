@@ -1,8 +1,8 @@
 use crate::helper::password;
 use db::db::db::get_db;
 use dto::players::{NewPlayer, UpdatePlayer};
-use error::error::ApiError;
 use entity::player;
+use error::error::ApiError;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set};
 use uuid::Uuid;
 
@@ -21,31 +21,30 @@ async fn is_username_taken(username: String) -> bool {
 async fn is_email_taken(email: String) -> bool {
     let db = get_db().await;
 
-    let user = player::Entity::find()
+    match player::Entity::find()
         .filter(player::Column::Email.eq(email))
         .one(&db)
         .await
-        .unwrap();
-
-    user.is_some()
+    {
+        Ok(user) => user.is_some(),
+        Err(_) => false, // Just assume user does not exist
+    }
 }
 
-pub async fn get_player_by_id(id: Uuid) -> Result<player::Model, ApiError>{
+pub async fn get_player_by_id(id: Uuid) -> Result<player::Model, ApiError> {
     let db = get_db().await;
 
     let user = player::Entity::find()
         .filter(player::Column::Id.eq(id))
         .filter(player::Column::IsEnabled.eq(true))
         .one(&db)
-        .await
-        .unwrap();
+        .await?;
 
     match user {
         Some(usr) => Ok(usr),
-        None => Err(ApiError::NotFound(format!("Player {}", id).to_string()))
+        None => Err(ApiError::NotFound(format!("Player {}", id).to_string())),
     }
 }
-
 
 pub async fn add_player(payload: NewPlayer) -> Result<player::Model, ApiError> {
     let email_available = is_email_taken(payload.email.clone()).await;
@@ -57,7 +56,7 @@ pub async fn add_player(payload: NewPlayer) -> Result<player::Model, ApiError> {
         id: Set(Uuid::new_v4()),
         username: Set(payload.username),
         email: Set(payload.email),
-        password_hash: Set(password::hash_password(&payload.password).into_bytes()),
+        password_hash: Set(password::hash_password(&payload.password)?.into_bytes()),
         real_name: Set(payload.real_name),
         ..Default::default()
     };
@@ -71,14 +70,11 @@ pub async fn add_player(payload: NewPlayer) -> Result<player::Model, ApiError> {
     }
 }
 
-
-
 pub async fn update_player(id: Uuid, payload: UpdatePlayer) -> Result<player::Model, ApiError> {
     let db = get_db().await;
-    let existing_player = get_player_by_id(id).await?;  
+    let existing_player = get_player_by_id(id).await?;
 
     let mut active_model: player::ActiveModel = existing_player.into();
-    
 
     if let Some(biography) = payload.biography {
         active_model.biography = Set(Some(biography));
@@ -102,13 +98,15 @@ pub async fn update_player(id: Uuid, payload: UpdatePlayer) -> Result<player::Mo
         active_model.social_links = Set(Some(social_links));
     }
 
-    let updated_player = active_model.update(&db).await.map_err(ApiError::DatabaseError)?;
-    
+    let updated_player = active_model
+        .update(&db)
+        .await
+        .map_err(ApiError::DatabaseError)?;
+
     Ok(updated_player)
 }
 
-
-pub async  fn delete_player(id: Uuid) -> Result<(), ApiError> {
+pub async fn delete_player(id: Uuid) -> Result<(), ApiError> {
     let db = get_db().await;
     let existing_player = get_player_by_id(id).await?;
 
@@ -116,7 +114,10 @@ pub async  fn delete_player(id: Uuid) -> Result<(), ApiError> {
 
     active_model.is_enabled = Set(false);
 
-    active_model.update(&db).await.map_err(ApiError::DatabaseError)?;
+    active_model
+        .update(&db)
+        .await
+        .map_err(ApiError::DatabaseError)?;
 
     Ok(())
 }
