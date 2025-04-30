@@ -63,7 +63,7 @@ async fn test_create_chess960_game_with_ai() {
     assert!(resp.status().is_success());
 }
 
-// Helper for test DB connection (can be from test-specific db)
+// Helps to test DB connection (can be from test-specific db)
 async fn setup_test_db() -> PgPool {
     PgPoolOptions::new()
         .connect("postgres://user:pass@localhost/starkmate_test")
