@@ -15,7 +15,7 @@ use validator::Validate;
 
 use service::players::{
     add_player as add_new_player, delete_player as delete_player_by_id,
-    get_player_by_id as get_single_player_by_id, update_player as update_player_by_id,
+    find_player_by_id as get_single_player_by_id, update_player as update_player_by_id,
 };
 use uuid::Uuid;
 
@@ -43,7 +43,7 @@ pub async fn add_player(payload: Json<NewPlayer>) -> HttpResponse {
                 Err(err) => err.error_response(),
             }
         }
-        Err(errors) => ApiError::ValidationError(errors).error_response()
+        Err(errors) => ApiError::ValidationError(errors).error_response(),
     }
 }
 
@@ -59,7 +59,7 @@ pub async fn add_player(payload: Json<NewPlayer>) -> HttpResponse {
     )
 )]
 #[get("/{id}")]
-pub async fn get_player_by_id(id: Path<Uuid>) -> HttpResponse {
+pub async fn find_player_by_id(id: Path<Uuid>) -> HttpResponse {
     let player = get_single_player_by_id(id.into_inner()).await;
 
     match player {
@@ -86,16 +86,21 @@ pub async fn get_player_by_id(id: Path<Uuid>) -> HttpResponse {
 )]
 #[put("/{id}")]
 pub async fn update_player(id: Path<Uuid>, payload: Json<UpdatePlayer>) -> HttpResponse {
-    let player = update_player_by_id(id.into_inner(), payload.0).await;
+    match payload.0.validate() {
+        Ok(_) => {
+            let player = update_player_by_id(id.into_inner(), payload.0).await;
 
-    match player {
-        Ok(plyr) => HttpResponse::Ok().json(json!({
-            "message":"Player updated",
-            "body":{
-                "player": UpdatedPlayer::from(plyr)
+            match player {
+                Ok(plyr) => HttpResponse::Ok().json(json!({
+                    "message":"Player updated",
+                    "body":{
+                        "player": UpdatedPlayer::from(plyr)
+                    }
+                })),
+                Err(err) => err.error_response(),
             }
-        })),
-        Err(err) => err.error_response(),
+        }
+        Err(err) => ApiError::ValidationError(err).error_response(),
     }
 }
 
