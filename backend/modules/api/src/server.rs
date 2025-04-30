@@ -3,8 +3,25 @@
 use actix_web::{App, HttpResponse, HttpServer, Responder, web};
 use dotenv::dotenv;
 use error::error::custom_json_error;
+use utoipa_swagger_ui::SwaggerUi;
 use std::env;
 use crate::players::{add_player, delete_player, get_player_by_id, update_player};
+
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(
+    paths(
+        crate::players::add_player,
+        crate::players::get_player_by_id,
+        crate::players::update_player,
+        crate::players::delete_player
+    ),
+    tags(
+        (name = "StarkAPI", description = "Stark API")
+    )
+)]
+struct ApiDoc;
 
 /// Simple health-check endpoint
 async fn health() -> impl Responder {
@@ -17,6 +34,8 @@ async fn greet() -> impl Responder {
 }
 
 pub async fn main() -> std::io::Result<()> {
+    let openapi = ApiDoc::openapi();
+
     // Load .env variables (e.g., DATABASE_URL, SERVER_ADDR)
     dotenv().ok();
 
@@ -41,6 +60,10 @@ pub async fn main() -> std::io::Result<()> {
                     .service(get_player_by_id)
                     .service(update_player)
                     .service(delete_player),
+            )
+            .service(
+                SwaggerUi::new("/swagger-ui/{_:.*}")
+                    .url("/api-docs/openapi.json", openapi.clone()),
             )
     })
     .bind(&server_addr)?
