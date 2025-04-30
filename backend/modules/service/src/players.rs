@@ -1,7 +1,7 @@
 use crate::helper::password;
 use db::db::db::get_db;
 use dto::players::{NewPlayer, UpdatePlayer};
-use entity::player;
+use entity::player::{self, Model};
 use error::error::ApiError;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set};
 use uuid::Uuid;
@@ -31,7 +31,7 @@ async fn is_email_taken(email: String) -> bool {
     }
 }
 
-pub async fn get_player_by_id(id: Uuid) -> Result<player::Model, ApiError> {
+pub async fn find_player_by_id(id: Uuid) -> Result<player::Model, ApiError> {
     let db = get_db().await;
 
     let user = player::Entity::find()
@@ -43,6 +43,20 @@ pub async fn get_player_by_id(id: Uuid) -> Result<player::Model, ApiError> {
     match user {
         Some(usr) => Ok(usr),
         None => Err(ApiError::NotFound(format!("Player {}", id).to_string())),
+    }
+}
+
+pub async fn get_player_by_username(username: String) -> Result<Option<Model>, ApiError> {
+    let db = get_db().await;
+
+    let user = player::Entity::find()
+        .filter(player::Column::Username.eq(username))
+        .one(&db)
+        .await;
+
+    match user {
+        Ok(usr) => Ok(usr),
+        Err(err) => Err(ApiError::DatabaseError(err)),
     }
 }
 
@@ -72,9 +86,9 @@ pub async fn add_player(payload: NewPlayer) -> Result<player::Model, ApiError> {
 
 pub async fn update_player(id: Uuid, payload: UpdatePlayer) -> Result<player::Model, ApiError> {
     let db = get_db().await;
-    let existing_player = get_player_by_id(id).await?;
+    let existing_player = find_player_by_id(id).await?;
 
-    let mut active_model: player::ActiveModel = existing_player.into();
+    let mut active_model: player::ActiveModel = existing_player.clone().into();
 
     if let Some(biography) = payload.biography {
         active_model.biography = Set(Some(biography));
@@ -97,6 +111,19 @@ pub async fn update_player(id: Uuid, payload: UpdatePlayer) -> Result<player::Mo
     if let Some(social_links) = payload.social_links {
         active_model.social_links = Set(Some(social_links));
     }
+    if let Some(ref username) = payload.username {
+        let existing_username = get_player_by_username(username.clone()).await?;
+        match existing_username {
+            Some(ref user) => {
+                if user.email == existing_player.email {
+                    active_model.username = Set(username.clone());
+                }
+            }
+            None => {
+                active_model.username = Set(username.clone());
+            }
+        }
+    }
 
     let updated_player = active_model
         .update(&db)
@@ -108,7 +135,7 @@ pub async fn update_player(id: Uuid, payload: UpdatePlayer) -> Result<player::Mo
 
 pub async fn delete_player(id: Uuid) -> Result<(), ApiError> {
     let db = get_db().await;
-    let existing_player = get_player_by_id(id).await?;
+    let existing_player = find_player_by_id(id).await?;
 
     let mut active_model: player::ActiveModel = existing_player.into();
 
