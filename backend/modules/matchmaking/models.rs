@@ -22,8 +22,8 @@ pub struct MatchRequest {
     pub id: Uuid,
     pub player: Player,
     pub match_type: MatchType,
-    pub invite_address: Option<String>, // For private matches
-    pub max_elo_diff: Option<u32>,      // For rated matches
+    pub invite_address: Option<String>, // For private matches__
+    pub max_elo_diff: Option<u32>,      // For rated matches__
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
