@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import ClientRoot from "@/components/ClientRoot";
+import { AuthProvider } from "@/lib/auth-provider";
 
 export const metadata: Metadata = {
   title: "Starkmate",
@@ -15,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased font-rowdies bg-background text-foreground">
-        <ClientRoot>{children}</ClientRoot>
+        <AuthProvider>
+          <ClientRoot>{children}</ClientRoot>
+        </AuthProvider>
       </body>
     </html>
   );
