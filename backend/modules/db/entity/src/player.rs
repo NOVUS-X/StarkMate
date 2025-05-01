@@ -18,14 +18,17 @@ pub struct Model {
     pub username: String,
     pub email: String,
     pub password_hash: Vec<u8>,
-    pub biography: String,
-    pub country: String,
-    pub flair: String,
+    pub biography: Option<String>,
+    pub country: Option<String>,
+    pub flair: Option<String>,
     pub real_name: String,
-    pub location: String,
-    pub fide_rating: i32,
-    pub social_links: Vec<String>,
+    pub location: Option<String>,
+    pub fide_rating: Option<i32>,
+    pub social_links: Option<Vec<String>>,
+    pub is_enabled: bool
 }
+
+
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
 pub enum Column {
@@ -40,6 +43,7 @@ pub enum Column {
     Location,
     FideRating,
     SocialLinks,
+    IsEnabled
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DerivePrimaryKey)]
@@ -65,14 +69,17 @@ impl ColumnTrait for Column {
             Self::Username => ColumnType::String(StringLen::None).def().unique(),
             Self::Email => ColumnType::String(StringLen::None).def().unique(),
             Self::PasswordHash => ColumnType::VarBinary(StringLen::None).def(),
-            Self::Biography => ColumnType::Text.def(),
-            Self::Country => ColumnType::String(StringLen::None).def(),
-            Self::Flair => ColumnType::String(StringLen::None).def(),
+            Self::Biography => ColumnType::Text.def().null(),
+            Self::Country => ColumnType::String(StringLen::None).def().null(),
+            Self::Flair => ColumnType::String(StringLen::None).def().null(),
             Self::RealName => ColumnType::String(StringLen::None).def(),
-            Self::Location => ColumnType::String(StringLen::None).def(),
-            Self::FideRating => ColumnType::Integer.def(),
+            Self::Location => ColumnType::String(StringLen::None).def().null(),
+            Self::IsEnabled => ColumnType::Boolean.def().default(true),
+            Self::FideRating => ColumnType::Integer.def().null(),
             Self::SocialLinks => {
-                ColumnType::Array(RcOrArc::new(ColumnType::String(StringLen::None))).def()
+                ColumnType::Array(RcOrArc::new(ColumnType::String(StringLen::None)))
+                    .def()
+                    .null()
             }
         }
     }
