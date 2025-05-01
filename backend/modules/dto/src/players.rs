@@ -51,8 +51,8 @@ impl NewPlayer {
         let mut password = format!("PasswordIsVeryStrong");
 
         match invalid_choice {
-            InvalidPlayer::Username => username = format!("{}", rnd),
-            InvalidPlayer::Password => password = format!("password"),
+            InvalidPlayer::Username => username = format!("1"),
+            InvalidPlayer::Password => password = format!("pswrd"),
             InvalidPlayer::Email => email = format!("mail"),
         }
         Self {
@@ -67,7 +67,7 @@ impl NewPlayer {
 #[derive(Debug, Deserialize, Serialize, ToSchema, Validate)]
 pub struct UpdatePlayer {
     #[validate(length(
-        min = 3,
+        min = 4,
         max = 20,
         message = "Username must be between 3 and 20 characters"
     ))]
