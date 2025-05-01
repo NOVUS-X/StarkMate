@@ -1,6 +1,6 @@
-use core::fmt;
-use argon2::password_hash::Error as Argon2HashError;
 use actix_web::{Error, HttpRequest, HttpResponse, error::JsonPayloadError};
+use argon2::password_hash::Error as Argon2HashError;
+use core::fmt;
 use sea_orm::DbErr;
 use serde_json::json;
 use validator::{ValidationErrors, ValidationErrorsKind};
@@ -11,7 +11,7 @@ pub enum ApiError {
     DatabaseError(DbErr),
     NotFound(String),
     ValidationError(ValidationErrors),
-    PasswordHashError(Argon2HashError)
+    PasswordHashError(Argon2HashError),
 }
 
 impl From<DbErr> for ApiError {
@@ -26,6 +26,19 @@ impl From<Argon2HashError> for ApiError {
     }
 }
 
+fn parse_validation_error(error_kind: &ValidationErrorsKind, field_name: &str) -> String {
+    match error_kind {
+        ValidationErrorsKind::Field(field) => {
+            if let Some(msg) = &field[0].message {
+                format!("{} in list: {}. ", field_name, msg)
+            } else {
+                format!("Invalid value in list field {}. ", field_name)
+            }
+        }
+        _ => format!("Invalid value in list field {}. ", field_name),
+    }
+}
+
 impl fmt::Display for ApiError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -37,26 +50,31 @@ impl fmt::Display for ApiError {
                 for (_, error_kind) in errs.errors() {
                     match error_kind {
                         ValidationErrorsKind::Field(field) => {
-                            s.push_str(format!("{}. ", field[0].message.clone().unwrap()).as_str())
+                            if let Some(message) = &field[0].message {
+                                s.push_str(format!("{}. ", message).as_str());
+                            } else {
+                                s.push_str("Invalid field value. ");
+                            }
                         }
                         ValidationErrorsKind::Struct(strct) => {
-                            s.push_str(format!("{:?} ", strct.errors().clone()).as_str())
+                            strct.errors().iter().for_each(|(field_name, error_kind)| {
+                                s.push_str(&parse_validation_error(error_kind, &field_name))
+                            })
                         }
-                        ValidationErrorsKind::List(tree) => s.push_str(
-                            format!(
-                                "{:?}",
-                                tree.iter().map(|(_, box_errors)| format!(
-                                    "{:?}",
-                                    box_errors.errors().clone()
-                                ))
-                            )
-                            .as_str(),
-                        ),
+                        ValidationErrorsKind::List(tree) => {
+                            tree.iter().for_each(|(_, box_errors)|{
+                                box_errors.errors().iter().for_each(|(field_name, error_kind)|{
+                                    s.push_str(&parse_validation_error(error_kind, &field_name))
+                                })
+                            });
+                        }
                     }
                 }
                 write!(f, "{}", s)
-            },
-            ApiError::PasswordHashError(err) => write!(f,"Unable to hash password: {}", err.to_string())
+            }
+            ApiError::PasswordHashError(err) => {
+                write!(f, "Unable to hash password: {}", err.to_string())
+            }
         }
     }
 }
@@ -83,7 +101,7 @@ impl ApiError {
             ApiError::PasswordHashError(_) => HttpResponse::InternalServerError().json(json!({
                 "error": self.to_string(),
                 "code":500
-            }))
+            })),
         }
     }
 }
@@ -99,7 +117,7 @@ pub fn custom_json_error(err: JsonPayloadError, _: &HttpRequest) -> Error {
         // })),
         _ => HttpResponse::BadRequest().json(json!({
             "error":err.to_string(),
-            "body":{}
+            "code":400
         })),
     };
 
