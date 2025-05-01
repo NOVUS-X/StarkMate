@@ -36,9 +36,7 @@ pub async fn add_player(payload: Json<NewPlayer>) -> HttpResponse {
             match player {
                 Ok(plyr) => HttpResponse::Ok().json(json!({
                     "message":"New player added",
-                    "body":{
-                        "player": DisplayPlayer::from(plyr)
-                    }
+                    "data":DisplayPlayer::from(plyr)
                 })),
                 Err(err) => err.error_response(),
             }
@@ -65,7 +63,7 @@ pub async fn find_player_by_id(id: Path<Uuid>) -> HttpResponse {
     match player {
         Ok(plyr) => HttpResponse::Ok().json(json!({
             "message":"Player found",
-            "body":{
+            "data":{
                 "player": DisplayPlayer::from(plyr)
             }
         })),
@@ -93,7 +91,7 @@ pub async fn update_player(id: Path<Uuid>, payload: Json<UpdatePlayer>) -> HttpR
             match player {
                 Ok(plyr) => HttpResponse::Ok().json(json!({
                     "message":"Player updated",
-                    "body":{
+                    "data":{
                         "player": UpdatedPlayer::from(plyr)
                     }
                 })),
@@ -120,7 +118,7 @@ pub async fn delete_player(id: Path<Uuid>) -> HttpResponse {
     match delete_player_by_id(id.into_inner()).await {
         Ok(_) => HttpResponse::Ok().json(json!({
             "message":"Player deleted",
-            "body":{}
+            "data":{}
         })),
         Err(err) => err.error_response(),
     }
