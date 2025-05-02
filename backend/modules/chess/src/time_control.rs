@@ -24,6 +24,9 @@ impl PlayerClock {
     }
 
     pub fn start(&mut self) {
+        if self.is_running {
+            return;
+        }
         self.is_running = true;
         self.last_move_time = Some(Instant::now());
     }
@@ -41,12 +44,10 @@ impl PlayerClock {
     }
 
     pub fn apply_delay(&mut self, delay: Duration) {
-        if self.is_running {
-            if let Some(last_move_time) = self.last_move_time {
-                let elapsed = last_move_time.elapsed();
-                if elapsed < delay {
-                    self.remaining_time += delay - elapsed;
-                }
+        if let Some(last_move_time) = self.last_move_time {
+            let elapsed = last_move_time.elapsed();
+            if elapsed < delay {
+                self.remaining_time += delay - elapsed;
             }
         }
     }
