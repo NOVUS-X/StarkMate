@@ -19,35 +19,23 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
   const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
 
-  // Remove the unused isMobile variable
-  // const isMobile = useIsMobile();
-
-  // Handle responsive sizing
   useEffect(() => {
     const updateBoardSize = () => {
       const container = document.querySelector(
         ".chessboard-container"
       )?.parentElement;
       if (!container) return;
-
-      // Get the viewport width
-      const vw = Math.max(
+   const vw = Math.max(
         document.documentElement.clientWidth || 0,
         window.innerWidth || 0
       );
-
-      // Calculate the optimal board size
       const containerWidth = container.clientWidth;
       const maxSize = 560;
-      const minSize = Math.min(320, containerWidth); // Ensure minimum size is not larger than container
-
-      // Calculate new width based on screen size
+      const minSize = Math.min(320, containerWidth); 
       let newWidth;
       if (vw < 768) {
-        // For mobile screens
         newWidth = Math.max(minSize, Math.min(containerWidth * 0.95, maxSize));
       } else {
-        // For larger screens
         newWidth = Math.min(containerWidth, maxSize);
       }
 
@@ -66,13 +54,9 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
     };
   }, [mounted]);
 
-  // Only render the chessboard on the client side
   useEffect(() => {
     setMounted(true);
-
-    // Parse FEN position string to create board state
     if (position === "start") {
-      // Standard starting position
       setBoardState([
         ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
         ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"],
@@ -84,7 +68,6 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
         ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"],
       ]);
     } else {
-      // Try to parse custom FEN position
       try {
         const fenParts = position.split(" ");
         const rows = fenParts[0].split("/");
@@ -231,18 +214,7 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
     // If another square was already selected, try to make a move
     if (selectedSquare) {
       const [sourceRow, sourceCol] = selectedSquare.split(",").map(Number);
-
-      // Convert to algebraic notation
-      const sourceSquare = `${String.fromCharCode(97 + sourceCol)}${
-        8 - sourceRow
-      }`;
-      const targetSquare = `${String.fromCharCode(97 + col)}${8 - row}`;
-
-      // Call the onDrop callback
-      onDrop({ sourceSquare, targetSquare });
-
-      // Reset selection
-      setSelectedSquare(null);
+      attemptMove(sourceRow, sourceCol, row, col);
     }
   };
 
@@ -272,29 +244,11 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
     e.preventDefault();
     const data = e.dataTransfer.getData("text/plain");
     const [sourceRow, sourceCol] = data.split(",").map(Number);
-
-    // Convert to algebraic notation
-    const sourceSquare = `${String.fromCharCode(97 + sourceCol)}${
-      8 - sourceRow
-    }`;
-    const targetSquare = `${String.fromCharCode(97 + targetCol)}${
-      8 - targetRow
-    }`;
-
-    // Call the onDrop callback and update UI immediately
-    const moveSuccess = onDrop({ sourceSquare, targetSquare });
-    if (moveSuccess) {
-      // Force a re-render to update piece positions
-      setSelectedSquare(null);
-    }
+    attemptMove(sourceRow, sourceCol, targetRow, targetCol);
   };
-
-  // Handle drag over
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
   };
-
-  // If not mounted yet, show a placeholder
   if (!mounted) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-gray-800 rounded-md">
@@ -302,7 +256,6 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
       </div>
     );
   }
-
   return (
     <div
       className="chessboard-container w-full mx-auto relative"
@@ -321,7 +274,7 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
         touchAction: "none",
         margin: "0 auto",
         padding: "1%",
-        transform: "scale(var(--board-scale, 1))", // Add transform scale
+        transform: "scale(var(--board-scale, 1))",
         transformOrigin: "center center",
       }}
     >
@@ -334,7 +287,7 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
             <div
               key={`${rowIndex}-${colIndex}`}
               style={{
-                backgroundColor: isLight ? "#008e90" : "#ffffff", // Teal for dark squares, white for light squares
+                backgroundColor: isLight ? "#008e90" : "#ffffff", 
                 width: "100%",
                 height: "100%",
                 display: "flex",
