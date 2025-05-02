@@ -25,12 +25,9 @@ interface SidebarProps {
 
 export function GameSidebar({ collapsed: propCollapsed, setCollapsed, isMobileView = false }: SidebarProps) {
     const [isHovered, setIsHovered] = useState(false);
-    const [collapsed, setLocalCollapsed] = useState(true); // Start collapsed by default
-
-    useEffect(() => {
-        // Sync with parent state when needed
-        setCollapsed(collapsed);
-    }, [collapsed, setCollapsed]);
+    const [collapsed, setLocalCollapsed] = useState(propCollapsed); 
+    useEffect(() => setCollapsed(collapsed), [collapsed]);
+    useEffect(() => setLocalCollapsed(propCollapsed), [propCollapsed]);
 
     // For mobile view, we'll use a Sheet component
     if (isMobileView) {

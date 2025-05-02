@@ -1,16 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-// Remove the useIsMobile import if not needed elsewhere
-// import { useIsMobile } from "@/hook/use-mobile";
-import Image from "next/image";
+import Image from 'next/image';
 
 interface ChessboardComponentProps {
   position: string;
   onDrop: (params: { sourceSquare: string; targetSquare: string }) => void;
   width?: number;
 }
-
 const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
   position,
   onDrop,
@@ -20,6 +17,8 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
   const [boardState, setBoardState] = useState<string[][]>([]);
   const [boardWidth, setBoardWidth] = useState(width || 560);
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
+  const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
+
   // Remove the unused isMobile variable
   // const isMobile = useIsMobile();
 
@@ -112,13 +111,12 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
         setBoardState(newBoard);
       } catch (e) {
         console.error("Error parsing FEN:", e);
-        // Fallback to empty board
-        setBoardState(Array(8).fill(Array(8).fill("")));
+        setBoardState(
+          Array.from({ length: 8 }, () => Array(8).fill(""))
+        );
       }
     }
   }, [position]);
-
-  // Get piece image based on piece code
   const getPieceImage = (piece: string) => {
     if (!piece) return null;
 
@@ -169,44 +167,46 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
           position: "relative",
           userSelect: "none",
           cursor: "grab",
-          transform: `scale(${boardWidth < 400 ? 0.7 : 0.9})`, // Reduce scale on smaller screens
+          transform: `scale(${boardWidth < 400 ? 0.7 : 0.9})`,
           transition: "transform 0.2s ease",
         }}
       >
         <div
           style={{
-            width: boardWidth < 400 ? "80%" : "90%", // Reduce container size on smaller screens
+            width: boardWidth < 400 ? "80%" : "90%",
             height: boardWidth < 400 ? "80%" : "90%",
             position: "relative",
           }}
         >
-          <Image
-            src={pieceImages[piece]}
-            alt={piece}
-            fill
-            priority
-            sizes={`(max-width: 768px) ${squareSize}px, ${squareSize}px`}
-            style={{
-              objectFit: "contain",
-              filter: isWhite
-                ? "brightness(0.85) sepia(0.3) hue-rotate(170deg) saturate(0.8) drop-shadow(2px 2px 2px rgba(0,0,0,0.5))"
-                : "drop-shadow(2px 2px 2px rgba(0,0,0,0.3))",
-              willChange: "transform",
-            }}
-            onError={(e) => {
-              e.currentTarget.style.display = "none";
-              const parent = e.currentTarget.parentElement;
-              if (parent) {
-                parent.innerHTML = `<div style="font-size: ${
-                  squareSize * (boardWidth < 400 ? 0.5 : 0.7) // Reduce font size for Unicode fallback on smaller screens
-                }px; color: ${isWhite ? "#005dad" : "#333333"}; text-shadow: ${
-                  isWhite
-                    ? "0px 1px 2px rgba(0,0,0,0.7), -1px -1px 2px rgba(0,0,0,0.7)"
-                    : "0px 1px 2px rgba(0,0,0,0.5)"
-                };">${pieceSymbols[piece]}</div>`;
-              }
-            }}
-          />
+          {!imgErrors[piece] ? (
+            <Image 
+              src={pieceImages[piece]}
+              alt={piece}
+              fill
+              priority
+              sizes={`(max-width: 768px) ${squareSize}px, ${squareSize}px`}
+              style={{
+                objectFit: "contain",
+                filter: isWhite
+                  ? "brightness(0.85) sepia(0.3) hue-rotate(170deg) saturate(0.8) drop-shadow(2px 2px 2px rgba(0,0,0,0.5))"
+                  : "drop-shadow(2px 2px 2px rgba(0,0,0,0.3))",
+                willChange: "transform",
+              }}
+              onError={() => setImgErrors(prev => ({ ...prev, [piece]: true }))}
+            />
+          ) : (
+            <div
+              style={{
+                fontSize: `${squareSize * (boardWidth < 400 ? 0.5 : 0.7)}px`,
+                color: isWhite ? "#005dad" : "#333333",
+                textShadow: isWhite
+                  ? "0px 1px 2px rgba(0,0,0,0.7), -1px -1px 2px rgba(0,0,0,0.7)"
+                  : "0px 1px 2px rgba(0,0,0,0.5)",
+              }}
+            >
+              {pieceSymbols[piece]}
+            </div>
+          )}
         </div>
       </div>
     );

@@ -6,7 +6,6 @@ import { Chess } from "chess.js";
 import { FaUser } from "react-icons/fa";
 import { RiAliensFill } from "react-icons/ri";
 import Lottie from "lottie-react";
-// Change this line
 import chessAnimation from "@/public/assets/chess.json";
 
 const PlayPage = () => {
@@ -56,7 +55,6 @@ const PlayPage = () => {
               <ChessboardComponent
                 position={position}
                 onDrop={handleMove}
-                width={600}
               />
             </div>
           </div>
