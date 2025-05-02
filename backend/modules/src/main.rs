@@ -1,4 +1,5 @@
-use actix_web::{App, HttpServer};
+
+
 use dotenv::dotenv;
 use sqlx::postgres::PgPoolOptions;
 use std::env;
@@ -23,4 +24,12 @@ async fn main() -> std::io::Result<()> {
     .bind("127.0.0.1:8080")?
     .run()
     .await
+
+use actix_web;
+use api::server;
+
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    server::main().await
+
 }

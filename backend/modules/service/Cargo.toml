@@ -1,0 +1,15 @@
+[package]
+name = "service"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+sea-orm = { version = "1.1.0", features = [ "sqlx-postgres", "runtime-tokio-native-tls", "macros" ] }
+uuid = { version = "1", features = ["v4", "serde"] }
+argon2 = "0.5"
+rand = "0.8"
+
+dto = { path = "../dto"}
+db = {path = "../db"}
+entity = { path = "../db/entity"}
+error ={ path = "../error"}
