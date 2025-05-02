@@ -41,12 +41,29 @@ impl PlayerClock {
     }
 
     pub fn apply_delay(&mut self, delay: Duration) {
-        if let Some(last_move_time) = self.last_move_time {
-            let elapsed = last_move_time.elapsed();
-            if elapsed < delay {
-                self.remaining_time += delay - elapsed;
+        if self.is_running {
+            if let Some(last_move_time) = self.last_move_time {
+                let elapsed = last_move_time.elapsed();
+                if elapsed < delay {
+                    self.remaining_time += delay - elapsed;
+                }
             }
         }
+    }
+
+    pub fn get_real_time_remaining(&self) -> Duration {
+        if self.is_running {
+            if let Some(last_move_time) = self.last_move_time {
+                return self.remaining_time.saturating_sub(last_move_time.elapsed());
+            }
+        }
+        self.remaining_time
+    }
+
+    pub fn set_remaining_time(&mut self, time: Duration) {
+        self.remaining_time = time;
+        self.last_move_time = None;
+        self.is_running = false;
     }
 
     pub fn time_out(&self) -> bool {

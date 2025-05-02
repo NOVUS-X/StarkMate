@@ -16,6 +16,21 @@ mod tests {
         std::thread::sleep(Duration::from_secs(1));
         clock.stop();
 
-        assert!(clock.remaining_time <= Duration::from_secs(299));
+        assert!(clock.get_real_time_remaining() <= Duration::from_secs(299));
+
+        clock.apply_delay(time_control.delay);
+        assert_eq!(clock.get_real_time_remaining(), Duration::from_secs(300));
+
+        clock.apply_increment(time_control.increment);
+        assert_eq!(clock.get_real_time_remaining(), Duration::from_secs(302));
+
+        clock.start();
+        std::thread::sleep(Duration::from_secs(2));
+        clock.stop();
+        assert!(clock.get_real_time_remaining() <= Duration::from_secs(300));
+
+        assert!(!clock.time_out());
+        clock.set_remaining_time(Duration::from_secs(0));
+        assert!(clock.time_out());
     }
 }
