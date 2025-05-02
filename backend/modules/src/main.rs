@@ -1,10 +1,11 @@
-
-
+use actix_web::{App, HttpServer, web};
 use dotenv::dotenv;
 use sqlx::postgres::PgPoolOptions;
 use std::env;
-use actix_web::web;
-mod routes;  // Or use a proper import path depending on your project structure
+mod routes;
+use actix_cors::Cors;
+use actix_web::http::header;
+use env_logger;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
