@@ -4,6 +4,7 @@ import ClientRoot from "@/components/ClientRoot";
 import { AppProvider } from "@/context/walletContext";
 import "primereact/resources/themes/lara-light-cyan/theme.css";
 import { StarknetProvider } from "@/components/utils/Provider";
+import { Providers } from "./provider";
 
 export const metadata: Metadata = {
   title: "Starkmate",
@@ -20,7 +21,9 @@ export default function RootLayout({
       <body className="antialiased font-rowdies bg-background text-foreground">
         <StarknetProvider>
           <AppProvider>
+            <Providers>
             <ClientRoot>{children}</ClientRoot>
+            </Providers>
           </AppProvider>
         </StarknetProvider>
       </body>
