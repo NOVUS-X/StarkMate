@@ -1,13 +1,27 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from 'next/image';
+import Image from "next/image";
+
+import WhiteKing from "./chesspieces/white-king.svg";
+import WhiteQueen from "./chesspieces/white-queen.svg";
+import WhiteBishop from "./chesspieces/white-bishop.svg";
+import WhiteKnight from "./chesspieces/white-knight.svg";
+import WhiteRook from "./chesspieces/white-rook.svg";
+import WhitePawn from "./chesspieces/white-pawn.svg";
+import BlackKing from "./chesspieces/black-king.svg";
+import BlackQueen from "./chesspieces/black-queen.svg";
+import BlackBishop from "./chesspieces/black-bishop.svg";
+import BlackKnight from "./chesspieces/black-knight.svg";
+import BlackRook from "./chesspieces/black-rook.svg";
+import BlackPawn from "./chesspieces/black-pawn.svg";
 
 interface ChessboardComponentProps {
   position: string;
   onDrop: (params: { sourceSquare: string; targetSquare: string }) => void;
   width?: number;
 }
+
 const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
   position,
   onDrop,
@@ -17,7 +31,8 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
   const [boardState, setBoardState] = useState<string[][]>([]);
   const [boardWidth, setBoardWidth] = useState(width || 560);
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
-  const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
+
+  // Remove unused imgErrors state since we're using SVG now
 
   useEffect(() => {
     const updateBoardSize = () => {
@@ -25,13 +40,13 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
         ".chessboard-container"
       )?.parentElement;
       if (!container) return;
-   const vw = Math.max(
+      const vw = Math.max(
         document.documentElement.clientWidth || 0,
         window.innerWidth || 0
       );
       const containerWidth = container.clientWidth;
       const maxSize = 560;
-      const minSize = Math.min(320, containerWidth); 
+      const minSize = Math.min(320, containerWidth);
       let newWidth;
       if (vw < 768) {
         newWidth = Math.max(minSize, Math.min(containerWidth * 0.95, maxSize));
@@ -94,49 +109,30 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
         setBoardState(newBoard);
       } catch (e) {
         console.error("Error parsing FEN:", e);
-        setBoardState(
-          Array.from({ length: 8 }, () => Array(8).fill(""))
-        );
+        setBoardState(Array.from({ length: 8 }, () => Array(8).fill("")));
       }
     }
   }, [position]);
   const getPieceImage = (piece: string) => {
     if (!piece) return null;
 
-    // Map piece codes to image paths
+    // Map piece codes to SVG components
     const pieceImages: Record<string, string> = {
-      wP: "/images/chess/wp.png",
-      wR: "/images/chess/wr.png",
-      wN: "/images/chess/wn.png",
-      wB: "/images/chess/wb.png",
-      wQ: "/images/chess/wq.png",
-      wK: "/images/chess/wk.png",
-      bP: "/images/chess/bp.png",
-      bR: "/images/chess/br.png",
-      bN: "/images/chess/bn.png",
-      bB: "/images/chess/bb.png",
-      bQ: "/images/chess/bq.png",
-      bK: "/images/chess/bk.png",
-    };
-
-    // Fallback to Unicode symbols if images aren't available
-    const pieceSymbols: Record<string, string> = {
-      wP: "♙",
-      wR: "♖",
-      wN: "♘",
-      wB: "♗",
-      wQ: "♕",
-      wK: "♔",
-      bP: "♟",
-      bR: "♜",
-      bN: "♞",
-      bB: "♝",
-      bQ: "♛",
-      bK: "♚",
+      wP: WhitePawn,
+      wR: WhiteRook,
+      wN: WhiteKnight,
+      wB: WhiteBishop,
+      wQ: WhiteQueen,
+      wK: WhiteKing,
+      bP: BlackPawn,
+      bR: BlackRook,
+      bN: BlackKnight,
+      bB: BlackBishop,
+      bQ: BlackQueen,
+      bK: BlackKing,
     };
 
     const isWhite = piece.startsWith("w");
-    const squareSize = boardWidth / 8; // This now has access to boardWidth from component state
 
     return (
       <div
@@ -161,64 +157,54 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
             position: "relative",
           }}
         >
-          {!imgErrors[piece] ? (
-            <Image 
-              src={pieceImages[piece]}
-              alt={piece}
-              fill
-              priority
-              sizes={`(max-width: 768px) ${squareSize}px, ${squareSize}px`}
-              style={{
-                objectFit: "contain",
-                filter: isWhite
-                  ? "brightness(0.85) sepia(0.3) hue-rotate(170deg) saturate(0.8) drop-shadow(2px 2px 2px rgba(0,0,0,0.5))"
-                  : "drop-shadow(2px 2px 2px rgba(0,0,0,0.3))",
-                willChange: "transform",
-              }}
-              onError={() => setImgErrors(prev => ({ ...prev, [piece]: true }))}
-            />
-          ) : (
-            <div
-              style={{
-                fontSize: `${squareSize * (boardWidth < 400 ? 0.5 : 0.7)}px`,
-                color: isWhite ? "#005dad" : "#333333",
-                textShadow: isWhite
-                  ? "0px 1px 2px rgba(0,0,0,0.7), -1px -1px 2px rgba(0,0,0,0.7)"
-                  : "0px 1px 2px rgba(0,0,0,0.5)",
-              }}
-            >
-              {pieceSymbols[piece]}
-            </div>
-          )}
+          <Image
+            src={pieceImages[piece]}
+            alt={piece}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+              filter: isWhite
+                ? "drop-shadow(2px 2px 2px rgba(0,0,0,0.5))"
+                : "drop-shadow(2px 2px 2px rgba(0,0,0,0.3))",
+            }}
+          />
         </div>
       </div>
     );
   };
+  const attemptMove = (
+    sourceRow: number,
+    sourceCol: number,
+    targetRow: number,
+    targetCol: number
+  ): void => {
+    const sourceSquare = `${String.fromCharCode(97 + sourceCol)}${
+      8 - sourceRow
+    }`;
+    const targetSquare = `${String.fromCharCode(97 + targetCol)}${
+      8 - targetRow
+    }`;
 
-  // Handle click for mobile or touch devices
+    onDrop({ sourceSquare, targetSquare });
+    setSelectedSquare(null);
+  };
+
   const handleSquareClick = (row: number, col: number) => {
     const clickedSquare = `${row},${col}`;
-
-    // If no square is selected yet, select this one if it has a piece
     if (!selectedSquare && boardState[row][col]) {
       setSelectedSquare(clickedSquare);
       return;
     }
-
-    // If this is the same square that was already selected, deselect it
     if (selectedSquare === clickedSquare) {
       setSelectedSquare(null);
       return;
     }
-
-    // If another square was already selected, try to make a move
     if (selectedSquare) {
       const [sourceRow, sourceCol] = selectedSquare.split(",").map(Number);
       attemptMove(sourceRow, sourceCol, row, col);
     }
   };
-
-  // Handle drag start
   const handleDragStart = (e: React.DragEvent, row: number, col: number) => {
     e.dataTransfer.setData("text/plain", `${row},${col}`);
     const draggedElement = e.currentTarget as HTMLElement;
@@ -226,16 +212,12 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
       draggedElement.style.opacity = "0.6";
     }
   };
-
-  // Handle drag end
   const handleDragEnd = (e: React.DragEvent) => {
     const draggedElement = e.currentTarget as HTMLElement;
     if (draggedElement) {
       draggedElement.style.opacity = "1";
     }
   };
-
-  // Handle drop
   const handleDrop = (
     e: React.DragEvent,
     targetRow: number,
@@ -287,7 +269,7 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
             <div
               key={`${rowIndex}-${colIndex}`}
               style={{
-                backgroundColor: isLight ? "#008e90" : "#ffffff", 
+                backgroundColor: isLight ? "#008e90" : "#ffffff",
                 width: "100%",
                 height: "100%",
                 display: "flex",
@@ -296,7 +278,7 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
                 cursor: piece ? "grab" : "default",
                 position: "relative",
                 boxShadow: isSelected
-                  ? "inset 0 0 0 3px rgba(0, 93, 173, 0.75)" // Blue highlight for selected squares
+                  ? "inset 0 0 0 3px rgba(0, 93, 173, 0.75)"
                   : "none",
                 transition: "background-color 0.2s ease",
               }}
