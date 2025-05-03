@@ -37,7 +37,12 @@ export function WalletConnectModal({
                 <Button
                   key={`${connector.id}${index}$`}
                   className="w-full bg-gradient-to-r from-teal-500 to-blue-700 hover:from-teal-600 hover:to-blue-800"
-                  onClick={() => connectWallet(connector)}
+                  onClick={() => {
+                    connectWallet(connector)
+                     onClose()
+                  }
+                  
+                  }
                 >
                   {connector.id.charAt(0).toUpperCase() + connector.id.slice(1)}
                 </Button>

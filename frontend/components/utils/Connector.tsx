@@ -4,17 +4,18 @@ import { useBalance } from "@starknet-react/core";
 import { useRouter } from "next/navigation";
 import { useAppContext } from "@/context/walletContext";
 import { WalletConnectModal } from "../WalletConnectModal";
+import { STRK_TOKEN_ADDRESS } from "@/constants/tokens";
+
 const Connector: React.FC = () => {
   const { address, status } = useAppContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { data } = useBalance({
-    token: "0x04718f5a0Fc34cC1AF16A1cdee98fFB20C31f5cD61D6Ab07201858f4287c938D",
+    token: STRK_TOKEN_ADDRESS,
     address: address as "0x",
   });
   const router = useRouter();
 
-  console.log(data);
-  console.log(status);
+
   return (
     <div className="p-6 text-center">
       {status === "connecting" && (

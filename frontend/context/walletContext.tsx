@@ -11,6 +11,7 @@ import {
 } from "@starknet-react/core";
 import type { Connector } from "@starknet-react/core";
 import DotPulseLoader from "../components/ui/DotPulseLoader";
+import { STRK_TOKEN_ADDRESS } from "@/constants/tokens";
 
 interface AppContextType {
   showToast: (
@@ -35,7 +36,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const { disconnectAsync } = useDisconnect();
   const { address, status } = useAccount();
   const { data, isLoading } = useBalance({
-    token: "0x04718f5a0Fc34cC1AF16A1cdee98fFB20C31f5cD61D6Ab07201858f4287c938D",
+    token: STRK_TOKEN_ADDRESS,
     address: address as "0x",
   });
 
