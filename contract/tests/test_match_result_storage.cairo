@@ -1,25 +1,22 @@
 use contract::match_result_storage::{
     IMatchResultStorageDispatcher, IMatchResultStorageDispatcherTrait, MatchResultStorage, MatchResult, MatchResultStorage::MatchResultStored
 };
-use openzeppelin_token::erc20::{ERC20Component, ERC20Component::InternalTrait, ERC20HooksEmptyImpl};
-use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use starknet::{ContractAddress, contract_address_const};
+use starknet::{ContractAddress};
 use snforge_std::{declare, ContractClassTrait, DeclareResultTrait, start_cheat_caller_address, start_cheat_block_timestamp, stop_cheat_caller_address, spy_events, EventSpyAssertionsTrait};
 use core::array::ArrayTrait;
 use core::result::ResultTrait;
 use core::num::traits::Zero;
-// use contract::match_result_storage::MatchResultStorage::MatchResultStored;
 
 fn ORACLE() -> ContractAddress {
-    contract_address_const::<'ORACLE'>()
+    'ORACLE'.try_into().unwrap()
 }
 
 fn PLAYER_WHITE() -> ContractAddress {
-    contract_address_const::<'PLAYER_WHITE'>()
+    'PLAYER_WHITE'.try_into().unwrap()
 }
 
 fn PLAYER_BLACK() -> ContractAddress {
-    contract_address_const::<'PLAYER_BLACK'>()
+    'PLAYER_BLACK'.try_into().unwrap()
 }
 
 // Helper function to deploy a StoreResult contract
@@ -42,7 +39,7 @@ fn test_setup() {
     let storeresult = IMatchResultStorageDispatcher { contract_address: store_result_address };
 
     assert(
-        store_result_address != contract_address_const::<0>(), 
+        store_result_address !=  0.try_into().unwrap(), 
         'Contract deployed'
     );
     assert!(storeresult.get_oracle_address() == ORACLE(), "Incorrect oracle address");

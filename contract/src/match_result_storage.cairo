@@ -35,9 +35,6 @@ pub mod MatchResultStorage {
     use core::box::BoxTrait;
     use super::MatchResult;
 
-    
-
-    // Storage variables
     #[storage]
     pub struct Storage {
         // The address of the oracle allowed to store results
@@ -61,7 +58,6 @@ pub mod MatchResultStorage {
     pub enum Event {
         MatchResultStored: MatchResultStored,
     }
-
 
     #[constructor]
     fn constructor(ref self: ContractState, oracle_address: ContractAddress) {
