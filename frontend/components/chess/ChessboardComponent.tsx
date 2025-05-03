@@ -115,8 +115,6 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
   }, [position]);
   const getPieceImage = (piece: string) => {
     if (!piece) return null;
-
-    // Map piece codes to SVG components
     const pieceImages: Record<string, string> = {
       wP: WhitePawn,
       wR: WhiteRook,
@@ -131,9 +129,7 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
       bQ: BlackQueen,
       bK: BlackKing,
     };
-
     const isWhite = piece.startsWith("w");
-
     return (
       <div
         className="piece-container"
@@ -160,6 +156,9 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
           <Image
             src={pieceImages[piece]}
             alt={piece}
+            fill
+            priority
+            sizes="(max-width: 400px) 80vw, 90vw"
             style={{
               width: "100%",
               height: "100%",
@@ -167,6 +166,14 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
               filter: isWhite
                 ? "drop-shadow(2px 2px 2px rgba(0,0,0,0.5))"
                 : "drop-shadow(2px 2px 2px rgba(0,0,0,0.3))",
+            }}
+            onError={(e) => {
+              console.error(`Failed to load chess piece: ${piece}`);
+              // Handle error state in a Next.js friendly way
+              const target = e.target as HTMLImageElement;
+              if (target) {
+                target.style.opacity = "0.5";
+              }
             }}
           />
         </div>
@@ -268,6 +275,16 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
           return (
             <div
               key={`${rowIndex}-${colIndex}`}
+              role="gridcell"
+              aria-label={`${String.fromCharCode(97 + colIndex)}${
+                8 - rowIndex
+              }${piece ? " with " + piece : ""}`}
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  handleSquareClick(rowIndex, colIndex);
+                }
+              }}
               style={{
                 backgroundColor: isLight ? "#008e90" : "#ffffff",
                 width: "100%",
@@ -292,8 +309,8 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
               {piece && (
                 <div
                   style={{
-                    transition: "transform 0.2s ease-out", // Add smooth transition for piece movement
-                    transform: `scale(${isSelected ? 1.1 : 1})`, // Add subtle scaling effect for selected pieces
+                    transition: "transform 0.2s ease-out",
+                    transform: `scale(${isSelected ? 1.1 : 1})`,
                   }}
                 >
                   {getPieceImage(piece)}
