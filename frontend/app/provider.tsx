@@ -9,33 +9,28 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   // const [connecting, setConnecting] = useState(true)
   useEffect(() => {
-    const LS_connector = localStorage.getItem("connector");
-   
-    (async () => {
-      if (LS_connector) {
-        const connector = connectors.find(
-          (con) => con.id === LS_connector
-        );
-        console.log(status)
-        try {
-             if (connector)
-               await connectAsync({ connector }).then(() =>
-                 console.log("connected successfully!!!")
-               ).catch(err=>console.log('error',err));
-        } catch (error) {
-            console.log(error)
+    const tryReconnect = async () => {
+      const LS_connector = localStorage.getItem("connector");
+      if (!LS_connector) return;
+  
+      const connector = connectors.find((con) => con.id === LS_connector);
+      if (!connector) return;
+  
+      try {
+        if (status === "disconnected") {
+          await connectAsync({ connector });
+          console.log("Connected successfully!");
         }
-      
-     
-        console.log(status,address)
-      
-      if(status=='disconnected'){
-
-        await connectAsync({ connector }).then(()=>console.log('connected successfully!!!')).catch(err=>console.log(err));
-        console.log(status,address)
-      }}
-    })();
-  }, [address,status]);
+      } catch (err) {
+        console.error("Connection error:", err);
+      }
+  
+      console.log("Status:", status, "Address:", address);
+    };
+  
+    tryReconnect();
+  }, [address, status,connectAsync,connectors]);
+  
 
   return <>{children}</>;
 }
