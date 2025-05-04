@@ -18,13 +18,10 @@ pub struct Model {
     pub country: String,
     pub flair: String,
     pub real_name: String,
-    pub location: Option<String>,
-    pub fide_rating: Option<i32>,
-    pub social_links: Option<Vec<String>>,
-    pub is_enabled: bool
+    pub location: String,
+    pub fide_rating: i32,
+    pub social_links: Vec<String>,
 }
-
-
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {}
