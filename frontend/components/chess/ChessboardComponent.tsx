@@ -18,10 +18,11 @@ import BlackPawn from "./chesspieces/black-pawn.svg";
 
 interface ChessboardComponentProps {
   position: string;
-  onDrop: (params: { sourceSquare: string; targetSquare: string }) => void;
-  width?: number;
+  onDrop: (params: { sourceSquare: string; targetSquare: string }) => boolean;
+  width?: number; // Added width as optional prop
 }
 
+// Remove the first component implementation and keep only the detailed one
 const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
   position,
   onDrop,
@@ -132,7 +133,7 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
     const isWhite = piece.startsWith("w");
     return (
       <div
-        className="piece-container"
+        className="piece-container group"
         style={{
           width: "100%",
           height: "100%",
@@ -143,7 +144,7 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
           userSelect: "none",
           cursor: "grab",
           transform: `scale(${boardWidth < 400 ? 0.7 : 0.9})`,
-          transition: "transform 0.2s ease",
+          transition: "all 0.2s ease",
         }}
       >
         <div
@@ -151,7 +152,12 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
             width: boardWidth < 400 ? "80%" : "90%",
             height: boardWidth < 400 ? "80%" : "90%",
             position: "relative",
+            transform: "scale(1)",
+            transition: "transform 0.2s ease",
+            aspectRatio: "1/1", // Add this to ensure square aspect ratio
+            minHeight: "40px", // Add minimum height
           }}
+          className="group-hover:transform group-hover:scale-110"
         >
           <Image
             src={pieceImages[piece]}
@@ -166,10 +172,11 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
               filter: isWhite
                 ? "drop-shadow(2px 2px 2px rgba(0,0,0,0.5))"
                 : "drop-shadow(2px 2px 2px rgba(0,0,0,0.3))",
+              transition: "filter 0.2s ease",
             }}
+            className="group-hover:filter group-hover:brightness-110"
             onError={(e) => {
               console.error(`Failed to load chess piece: ${piece}`);
-              // Handle error state in a Next.js friendly way
               const target = e.target as HTMLImageElement;
               if (target) {
                 target.style.opacity = "0.5";
