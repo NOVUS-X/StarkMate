@@ -199,11 +199,11 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
     const targetSquare = `${String.fromCharCode(97 + targetCol)}${
       8 - targetRow
     }`;
-
-    onDrop({ sourceSquare, targetSquare });
-    setSelectedSquare(null);
+    const moveSuccess = onDrop({ sourceSquare, targetSquare });
+    if (moveSuccess) {
+      setSelectedSquare(null);
+    }
   };
-
   const handleSquareClick = (row: number, col: number) => {
     const clickedSquare = `${row},${col}`;
     if (!selectedSquare && boardState[row][col]) {
@@ -255,6 +255,8 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
   return (
     <div
       className="chessboard-container w-full mx-auto relative"
+      role="grid"
+      aria-label="Chess Board"
       style={{
         width: "100%",
         maxWidth: `${boardWidth}px`,
@@ -273,12 +275,12 @@ const ChessboardComponent: React.FC<ChessboardComponentProps> = ({
         transform: "scale(var(--board-scale, 1))",
         transformOrigin: "center center",
       }}
+      aria-live="polite"
     >
       {boardState.map((row, rowIndex) =>
         row.map((piece, colIndex) => {
           const isLight = (rowIndex + colIndex) % 2 === 1;
           const isSelected = selectedSquare === `${rowIndex},${colIndex}`;
-
           return (
             <div
               key={`${rowIndex}-${colIndex}`}

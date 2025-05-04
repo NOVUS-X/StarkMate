@@ -53,13 +53,13 @@ export function GameSidebar({
       </Sheet>
     );
   }
-
-  // Desktop sidebar with hover functionality
   return (
     <div
       className={`fixed left-0 top-0 h-full bg-gray-900/95 backdrop-blur-sm border-r border-gray-800/50 flex-col transition-all duration-500 ease-in-out hidden md:flex ${
         collapsed && !isHovered ? "w-16" : "w-64"
-      } shadow-xl group z-[100]`}
+      } shadow-xl group z-[50]`}
+      role="navigation"
+      aria-label="Main Navigation"
       onMouseEnter={() => {
         setIsHovered(true);
         setLocalCollapsed(false);
@@ -90,32 +90,38 @@ export function GameSidebar({
         <SidebarItem
           icon={<ChessIcon />}
           label="Play"
+          href="/"
           collapsed={collapsed && !isHovered}
           active
         />
         <SidebarItem
           icon={<WatchIcon />}
           label="Watch"
+          href="/watch"
           collapsed={collapsed && !isHovered}
         />
         <SidebarItem
           icon={<NewsIcon />}
           label="News"
+          href="/news"
           collapsed={collapsed && !isHovered}
         />
         <SidebarItem
           icon={<UserIcon />}
           label="Profile"
+          href="/profile"
           collapsed={collapsed && !isHovered}
         />
         <SidebarItem
           icon={<SettingsIcon />}
           label="Settings"
+          href="/settings"
           collapsed={collapsed && !isHovered}
         />
         <SidebarItem
           icon={<SupportIcon />}
           label="Support"
+          href="/support"
           collapsed={collapsed && !isHovered}
         />
       </nav>
@@ -163,19 +169,25 @@ export function GameSidebar({
 interface SidebarItemProps {
   icon: React.ReactNode;
   label: string;
+  href: string;
   collapsed?: boolean;
   active?: boolean;
 }
 
-// Keep only this version of SidebarItem and remove the duplicate
-function SidebarItem({ icon, label, collapsed, active }: SidebarItemProps) {
+function SidebarItem({
+  icon,
+  label,
+  href,
+  collapsed,
+  active,
+}: SidebarItemProps) {
   return (
     <Link
-      href="#"
-      className={`flex items-center p-3 ${
-        collapsed ? "justify-center" : "px-4"
-      } hover:bg-gray-800/50 transition-all duration-300 rounded-lg mb-1 group overflow-hidden ${
-        active ? "bg-gray-800/50 shadow-lg" : ""
+      href={href}
+      className={`flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-300 ${
+        active
+          ? "bg-gray-800/50 text-white"
+          : "text-gray-400 hover:text-white hover:bg-gray-800/30"
       }`}
     >
       <span
@@ -195,12 +207,9 @@ function SidebarItem({ icon, label, collapsed, active }: SidebarItemProps) {
     </Link>
   );
 }
-
-// Mobile sidebar component (always expanded)
 interface MobileSidebarProps {
   className?: string;
 }
-
 function MobileSidebar({ className = "" }: MobileSidebarProps) {
   return (
     <div className={`flex flex-col h-full bg-gray-900 ${className}`}>
@@ -214,16 +223,26 @@ function MobileSidebar({ className = "" }: MobileSidebarProps) {
           />
         </div>
       </div>
-
       <nav className="flex-1">
-        <MobileSidebarItem icon={<ChessIcon />} label="Play" active />
-        <MobileSidebarItem icon={<WatchIcon />} label="Watch" />
-        <MobileSidebarItem icon={<NewsIcon />} label="News" />
-        <MobileSidebarItem icon={<UserIcon />} label="Profile" />
-        <MobileSidebarItem icon={<SettingsIcon />} label="Settings" />
-        <MobileSidebarItem icon={<SupportIcon />} label="Support" />
+        <MobileSidebarItem icon={<ChessIcon />} label="Play" href="/" active />
+        <MobileSidebarItem icon={<WatchIcon />} label="Watch" href="/watch" />
+        <MobileSidebarItem icon={<NewsIcon />} label="News" href="/news" />
+        <MobileSidebarItem
+          icon={<UserIcon />}
+          label="Profile"
+          href="/profile"
+        />
+        <MobileSidebarItem
+          icon={<SettingsIcon />}
+          label="Settings"
+          href="/settings"
+        />
+        <MobileSidebarItem
+          icon={<SupportIcon />}
+          label="Support"
+          href="/support"
+        />
       </nav>
-
       <div className="p-4 space-y-2">
         <Button className="w-full bg-gradient-to-r from-teal-500 to-blue-700 hover:from-teal-600 hover:to-blue-800 text-white">
           <div className="flex items-center">
@@ -245,11 +264,11 @@ function MobileSidebar({ className = "" }: MobileSidebarProps) {
   );
 }
 
-// Keep MobileSidebarItem as is
-function MobileSidebarItem({ icon, label, active }: SidebarItemProps) {
+// Update MobileSidebarItem component to use the href prop
+function MobileSidebarItem({ icon, label, href, active }: SidebarItemProps) {
   return (
     <Link
-      href="#"
+      href={href}
       className={`flex items-center p-3 px-4 hover:bg-gray-800/50 transition-all duration-300 rounded-lg mb-1 group ${
         active ? "bg-gray-800/50 shadow-lg" : ""
       }`}

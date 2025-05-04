@@ -76,14 +76,12 @@ const GameModeButtons: React.FC<GameModeButtonsProps> = ({ setGameMode }) => {
           <div className="corner bottom-right absolute w-[30px] h-[30px] bg-[#008e90]" />
         </button>
       </div>
-
       <style jsx>{`
         .play-button-container * {
           margin: 0;
           padding: 0;
           box-sizing: border-box;
         }
-
         .play-button {
           font-size: 18px;
           font-weight: bold;
@@ -91,15 +89,12 @@ const GameModeButtons: React.FC<GameModeButtonsProps> = ({ setGameMode }) => {
           text-transform: uppercase;
           min-height: 80px;
         }
-
         .play-button:hover {
           transform: scale(1.05);
         }
-
         .play-button:active {
           transform: scale(0.95);
         }
-
         .clip {
           clip-path: polygon(
             20% 0%,
@@ -114,43 +109,35 @@ const GameModeButtons: React.FC<GameModeButtonsProps> = ({ setGameMode }) => {
           box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.6);
           animation: shape-glitch 1.5s infinite ease-in-out;
         }
-
         .play-button:hover .clip {
           box-shadow: inset 0 0 25px rgba(255, 255, 255, 0.2);
         }
-
         .corner {
           transform: rotate(45deg);
           transition: 0.2s ease;
           animation: corner-glitch 2s infinite ease-in-out;
           box-shadow: inset 1px 1px 8px rgba(255, 255, 255, 0.3);
         }
-
         .top-left {
           top: -15px;
           left: -15px;
         }
-
         .top-right {
           top: -15px;
           right: -15px;
         }
-
         .bottom-left {
           bottom: -15px;
           left: -15px;
         }
-
         .bottom-right {
           bottom: -15px;
           right: -15px;
         }
-
         .play-button:hover .corner {
           transform: scale(1.25) rotate(45deg);
           animation: corner-light 0.4s ease-in-out infinite alternate;
         }
-
         @keyframes shape-glitch {
           0%,
           100% {
@@ -193,7 +180,6 @@ const GameModeButtons: React.FC<GameModeButtonsProps> = ({ setGameMode }) => {
             opacity: 1;
           }
         }
-
         @keyframes corner-glitch {
           0%,
           100% {
@@ -213,7 +199,6 @@ const GameModeButtons: React.FC<GameModeButtonsProps> = ({ setGameMode }) => {
             opacity: 0.9;
           }
         }
-
         @keyframes corner-light {
           0% {
             box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.3);
@@ -226,5 +211,4 @@ const GameModeButtons: React.FC<GameModeButtonsProps> = ({ setGameMode }) => {
     </>
   );
 };
-
 export default GameModeButtons;

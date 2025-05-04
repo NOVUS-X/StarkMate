@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { GameSidebar } from "@/components/GameSidebar";
 import Image from "next/image";
+import clsx from "clsx";
 
 export default function ClientRoot({
   children,
@@ -10,14 +11,18 @@ export default function ClientRoot({
   children: React.ReactNode;
 }) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-
   return (
     <div className="flex h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
       <GameSidebar
         collapsed={isSidebarCollapsed}
         setCollapsed={setIsSidebarCollapsed}
       />
-      <main className="flex-1 overflow-auto md:ml-16">
+      <main
+        className={clsx(
+          "flex-1 overflow-auto transition-all duration-300",
+          isSidebarCollapsed ? "md:ml-16" : "md:ml-64"
+        )}
+      >
         <div className="md:hidden flex items-center p-4 border-b border-gray-800">
           <GameSidebar
             isMobileView={true}
