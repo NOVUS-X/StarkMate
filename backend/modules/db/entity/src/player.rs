@@ -53,8 +53,22 @@ impl PrimaryKeyTrait for PrimaryKey {
     }
 }
 
-#[derive(Copy, Clone, Debug, EnumIter)]
-pub enum Relation {}
+#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
+pub enum Relation {
+    #[sea_orm(
+        has_many = "super::game::Entity",
+        from = "super::player::Column::Id",
+        to = "super::game::Column::WhitePlayer"
+    )]
+    WhiteGames,
+
+    #[sea_orm(
+        has_many = "super::game::Entity",
+        from = "super::player::Column::Id",
+        to = "super::game::Column::BlackPlayer"
+    )]
+    BlackGames,
+}
 
 impl ColumnTrait for Column {
     type EntityName = Entity;
@@ -86,5 +100,4 @@ impl RelationTrait for Relation {
     }
 }
 
->>>>>>> upstream/main
 impl ActiveModelBehavior for ActiveModel {}
