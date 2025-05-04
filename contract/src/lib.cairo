@@ -4,4 +4,4 @@ pub mod ntf_trophy;
 
 // Re-export modules
 pub use hello_starknet::IHelloStarknet;
-pub use match_staking::{IMatchStaking, Match}; 
+pub use match_staking::{IMatchStaking, Match};
