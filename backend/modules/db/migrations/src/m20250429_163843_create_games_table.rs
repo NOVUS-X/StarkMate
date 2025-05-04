@@ -1,6 +1,7 @@
 use sea_orm_migration::{prelude::*, schema::*};
 // Import Player Iden from the player creation migration
-use crate::m20250428_121011_create_players_table::Player;
+use super::m20250428_121011_create_players_table::Player;
+use sea_orm_migration::prelude::ForeignKeyAction; // Import ForeignKeyAction
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -28,30 +29,35 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Game::WhitePlayer).uuid().not_null())
                     .col(ColumnDef::new(Game::BlackPlayer).uuid().not_null())
                     .col(ColumnDef::new(Game::Fen).text().not_null())
-                    .col(ColumnDef::new(Game::Pgn).json_binary().not_null())
+                    .col(
+                        ColumnDef::new(Game::Pgn)
+                            .json_binary()
+                            .not_null(),
+                    )
                     .col(ColumnDef::new(Game::Result).string().not_null())
                     .col(ColumnDef::new(Game::Variant).string().not_null())
                     .col(
                         ColumnDef::new(Game::StartedAt)
                             .timestamp_with_time_zone()
+                            .default(Expr::current_timestamp())
                             .not_null(),
                     )
                     .col(ColumnDef::new(Game::DurationSec).integer().not_null())
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_game_white_player")
-                            .from((Smdb, Game::Table), Game::WhitePlayer)
-                            .to((Smdb, Player::Table), Player::Id) // Use imported Player Iden and schema
-                            .on_delete(ForeignKeyAction::Cascade) // Add ON DELETE CASCADE
-                            .on_update(ForeignKeyAction::Cascade), // Add ON UPDATE CASCADE
+                            .from(Game::Table, Game::WhitePlayer)
+                            .to(Player::Table, Player::Id)
+                            .on_delete(ForeignKeyAction::Cascade) // Add Cascade
+                            .on_update(ForeignKeyAction::Cascade), // Add Cascade
                     )
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_game_black_player")
-                            .from((Smdb, Game::Table), Game::BlackPlayer)
-                            .to((Smdb, Player::Table), Player::Id) // Use imported Player Iden and schema
-                            .on_delete(ForeignKeyAction::Cascade) // Add ON DELETE CASCADE
-                            .on_update(ForeignKeyAction::Cascade), // Add ON UPDATE CASCADE
+                            .from(Game::Table, Game::BlackPlayer)
+                            .to(Player::Table, Player::Id)
+                            .on_delete(ForeignKeyAction::Cascade) // Add Cascade
+                            .on_update(ForeignKeyAction::Cascade), // Add Cascade
                     )
                     .to_owned(),
             )
@@ -150,11 +156,4 @@ enum Game {
 
 // Define the schema identifier
 #[derive(DeriveIden)]
-struct Smdb;
-
-// Remove the local Player enum definition
-// #[derive(DeriveIden)]
-// enum Player {
-//     Table,
-//     Id,
-// } 
+struct Smdb; 
