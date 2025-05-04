@@ -13,17 +13,78 @@ pub struct Model {
     pub email: String,
     #[sea_orm(column_type = "VarBinary(StringLen::None)")]
     pub password_hash: Vec<u8>,
-    #[sea_orm(column_type = "Text")]
-    pub biography: String,
-    pub country: String,
-    pub flair: String,
+    pub biography: Option<String>,
+    pub country: Option<String>,
+    pub flair: Option<String>,
     pub real_name: String,
-    pub location: String,
-    pub fide_rating: i32,
-    pub social_links: Vec<String>,
+    pub location: Option<String>,
+    pub fide_rating: Option<i32>,
+    pub social_links: Option<Vec<String>>,
+    pub is_enabled: bool
 }
 
-#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
+
+
+#[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
+pub enum Column {
+    Id,
+    Username,
+    Email,
+    PasswordHash,
+    Biography,
+    Country,
+    Flair,
+    RealName,
+    Location,
+    FideRating,
+    SocialLinks,
+    IsEnabled
+}
+
+#[derive(Copy, Clone, Debug, EnumIter, DerivePrimaryKey)]
+pub enum PrimaryKey {
+    Id,
+}
+
+impl PrimaryKeyTrait for PrimaryKey {
+    type ValueType = Uuid;
+    fn auto_increment() -> bool {
+        false
+    }
+}
+
+#[derive(Copy, Clone, Debug, EnumIter)]
 pub enum Relation {}
 
+impl ColumnTrait for Column {
+    type EntityName = Entity;
+    fn def(&self) -> ColumnDef {
+        match self {
+            Self::Id => ColumnType::Uuid.def(),
+            Self::Username => ColumnType::String(StringLen::None).def().unique(),
+            Self::Email => ColumnType::String(StringLen::None).def().unique(),
+            Self::PasswordHash => ColumnType::VarBinary(StringLen::None).def(),
+            Self::Biography => ColumnType::Text.def().null(),
+            Self::Country => ColumnType::String(StringLen::None).def().null(),
+            Self::Flair => ColumnType::String(StringLen::None).def().null(),
+            Self::RealName => ColumnType::String(StringLen::None).def(),
+            Self::Location => ColumnType::String(StringLen::None).def().null(),
+            Self::IsEnabled => ColumnType::Boolean.def().default(true),
+            Self::FideRating => ColumnType::Integer.def().null(),
+            Self::SocialLinks => {
+                ColumnType::Array(RcOrArc::new(ColumnType::String(StringLen::None)))
+                    .def()
+                    .null()
+            }
+        }
+    }
+}
+
+impl RelationTrait for Relation {
+    fn def(&self) -> RelationDef {
+        panic!("No RelationDef")
+    }
+}
+
+>>>>>>> upstream/main
 impl ActiveModelBehavior for ActiveModel {}

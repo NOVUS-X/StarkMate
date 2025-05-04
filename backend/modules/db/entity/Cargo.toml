@@ -1,21 +1,8 @@
 [package]
-name = "db_entity"
+name = "entity"
 version = "0.1.0"
-edition = "2021"
-
-[lib]
-name = "db_entity"
-path = "src/lib.rs" # Assuming src/lib.rs exists or will be created if needed
-
-[[bin]]
-name = "game_benchmark"
-path = "src/bin/game_benchmark.rs"
+edition = "2024"
 
 [dependencies]
 sea-orm = { version = "1.1.0", features = [ "sqlx-postgres", "runtime-tokio-native-tls", "macros" ] }
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] } # Needs full features for #[tokio::main] and time
-rand = "0.8"
-uuid = { version = "1", features = ["v4", "fast-rng", "macro-diagnostics", "serde"] } # Added serde feature often needed with DBs
-dotenv = "0.15.0" # Needed for DATABASE_URL loading 
