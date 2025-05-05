@@ -14,7 +14,7 @@ openzeppelin_upgrades = "0.20.0" # Added for potential future upgrades
 openzeppelin_introspection = "0.20.0" # Added for interface detection
 
 [dev-dependencies]
-snforge_std = "0.39.0"
+snforge_std = "0.42.0"
 assert_macros = "2.9.2"
 openzeppelin_utils = "0.20.0"   # Added for testing
 

@@ -182,17 +182,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         query_duration
     );
 
-    // 3. Query games based on JSONB content (e.g., PGN final ply count > 50)
-    let pgn_query_start = Instant::now();
+    // 3. Query PGN JSONB using GIN index (PostgreSQL specific operators)
+    // Example: Find games where PGN contains the key "final_ply" with a value > 50
+    let start_time = Instant::now();
     let games_by_pgn_content = Game::find()
-        .filter(Expr::cust("(\"pgn\" ->> 'final_ply')::int > 50")) // Corrected filter
+        // Corrected filter to directly check the numeric value
+        .filter(Expr::cust("(\"pgn\" ->> 'final_ply')::int > 50"))
         .all(&db)
         .await?;
-    let pgn_query_duration = pgn_query_start.elapsed();
+    let duration = start_time.elapsed();
     println!(
         "Querying {} games by PGN content (final_ply > 50) took: {:?}",
         games_by_pgn_content.len(),
-        pgn_query_duration
+        duration
     );
 
     // === Cleanup (Optional but recommended) ===
