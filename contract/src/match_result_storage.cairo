@@ -24,15 +24,13 @@ pub struct MatchResult {
 
 #[starknet::contract]
 pub mod MatchResultStorage {
-    use starknet::ContractAddress;
-    use core::integer::u64;
-    use core::felt252;
     use core::array::Array;
+    use core::box::BoxTrait;
+    use core::felt252;
+    use core::integer::u64;
     use core::traits::Into;
     use starknet::storage::*;
-    use starknet::get_caller_address;
-    use starknet::get_block_info;
-    use core::box::BoxTrait;
+    use starknet::{ContractAddress, get_block_info, get_caller_address};
     use super::MatchResult;
 
     #[storage]
@@ -45,7 +43,7 @@ pub mod MatchResultStorage {
 
     #[derive(Drop, starknet::Event)]
     pub struct MatchResultStored {
-        #[key] 
+        #[key]
         pub match_id: felt252,
         pub player_white: ContractAddress,
         pub player_black: ContractAddress,
@@ -84,22 +82,15 @@ pub mod MatchResultStorage {
 
             // Create and store the MatchResult struct
             let match_result = MatchResult {
-                match_id,
-                player_white,
-                player_black,
-                result,
-                timestamp,
+                match_id, player_white, player_black, result, timestamp,
             };
             self.results.write(match_id, match_result);
 
             // Emit event for indexers
-            self.emit(MatchResultStored {
-                match_id,
-                player_white,
-                player_black,
-                result,
-                timestamp,
-            });
+            self
+                .emit(
+                    MatchResultStored { match_id, player_white, player_black, result, timestamp },
+                );
         }
 
         // Retrieve a match result by its ID

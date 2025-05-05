@@ -1,6 +1,6 @@
 mod hello_starknet;
-pub mod match_staking;
 pub mod match_result_storage;
+pub mod match_staking;
 pub mod ntf_trophy;
 
 // Re-export modules
