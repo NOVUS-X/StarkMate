@@ -35,9 +35,7 @@ pub mod MatchStaking {
     use core::traits::Into;
     use openzeppelin_access::ownable::OwnableComponent;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
-    use starknet::{
-        ContractAddress, contract_address_const, get_caller_address, get_contract_address,
-    };
+    use starknet::{ContractAddress, get_caller_address, get_contract_address};
     use super::{IERC20Dispatcher, IERC20DispatcherTrait, Match};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
@@ -130,7 +128,7 @@ pub mod MatchStaking {
             // Create new match
             let new_match = Match {
                 player1,
-                player2: contract_address_const::<0>(),
+                player2: 0.try_into().unwrap(),
                 wager_amount,
                 is_active: true,
                 is_completed: false,
@@ -167,7 +165,7 @@ pub mod MatchStaking {
             // Validate match state
             assert(match_data.is_active, 'Match not active');
             assert(match_data.is_completed == false, 'Match already completed');
-            assert(match_data.player2 == contract_address_const::<0>(), 'Match already joined');
+            assert(match_data.player2 == 0.try_into().unwrap(), 'Match already joined');
             assert(match_data.player1 != player2, 'Cannot join your own match');
 
             // Transfer tokens from player2 to contract
@@ -207,21 +205,20 @@ pub mod MatchStaking {
             let caller = get_caller_address();
             assert(
                 caller == match_data.player1
-                    || (caller == match_data.player2
-                        && match_data.player2 != contract_address_const::<0>())
+                    || (caller == match_data.player2 && match_data.player2 != 0.try_into().unwrap())
                     || self.ownable.owner() == caller,
                 'Unauthorized',
             );
 
             // Return tokens to players
-            let contract_address = get_contract_address();
+            let _ = get_contract_address();
             let erc20 = IERC20Dispatcher { contract_address: match_data.token_address };
 
             // Return tokens to player1
             let _ = erc20.transfer(match_data.player1, match_data.wager_amount);
 
             // Return tokens to player2 if they joined
-            if (match_data.player2 != contract_address_const::<0>()) {
+            if (match_data.player2 != 0.try_into().unwrap()) {
                 let _ = erc20.transfer(match_data.player2, match_data.wager_amount);
             }
 
@@ -255,7 +252,7 @@ pub mod MatchStaking {
             // Validate match state
             assert(match_data.is_active, 'Match not active');
             assert(match_data.is_completed == false, 'Match already completed');
-            assert(match_data.player2 != contract_address_const::<0>(), 'Match not joined yet');
+            assert(match_data.player2 != 0.try_into().unwrap(), 'Match not joined yet');
 
             // Verify winner is one of the players
             assert(

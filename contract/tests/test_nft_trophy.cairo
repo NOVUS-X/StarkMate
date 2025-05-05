@@ -1,10 +1,7 @@
-use contract::ntf_trophy::{
-    ISoulboundTrophyDispatcher, ISoulboundTrophyDispatcherTrait, TrophyDetails,
-};
+use contract::ntf_trophy::{ISoulboundTrophyDispatcher, ISoulboundTrophyDispatcherTrait};
 use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
 use snforge_std::{ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address};
-use starknet::{ContractAddress, contract_address_const};
-
+use starknet::ContractAddress;
 // Helper function to deploy the SoulboundTrophy contract
 fn deploy_soulbound_contract(
     owner: ContractAddress, name: felt252, symbol: felt252,
@@ -17,7 +14,7 @@ fn deploy_soulbound_contract(
 }
 
 fn setup() -> (ISoulboundTrophyDispatcher, IERC721Dispatcher, ContractAddress) {
-    let owner = contract_address_const::<1>();
+    let owner = 1.try_into().unwrap();
     let name = 'Soulbound';
     let symbol = 'SBT';
     let (soulbound_contract, erc721_dispatcher) = deploy_soulbound_contract(owner, name, symbol);
@@ -47,7 +44,7 @@ fn test_create_trophy() {
 #[test]
 #[should_panic(expected_data: ('Caller is not the owner',))]
 fn test_only_owner_can_create_trophy() {
-    let (soulbound_contract, _, owner) = setup();
+    let (soulbound_contract, _, _) = setup();
 
     let trophy_name = 'Trophy1';
     let trophy_desc = 'Desc1';
@@ -64,7 +61,7 @@ fn test_only_owner_can_create_trophy() {
 
 #[test]
 fn test_mint_trophy() {
-    let player1 = contract_address_const::<1>();
+    let player1 = 1.try_into().unwrap();
     let (soulbound_contract, erc721_dispatcher, owner) = setup();
 
     // Set caller to owner
@@ -75,7 +72,7 @@ fn test_mint_trophy() {
     let trophy_uri = 'Uri1';
 
     let trophy_id = soulbound_contract.create_trophy(trophy_name, trophy_desc, trophy_uri);
-    let trophy_details = soulbound_contract.get_trophy_details(trophy_id);
+    let _ = soulbound_contract.get_trophy_details(trophy_id);
     soulbound_contract.mint_trophy(player1, trophy_id);
 
     assert(soulbound_contract.has_trophy(player1, trophy_id) == true, 'Player has no trophy ');
@@ -88,7 +85,7 @@ fn test_mint_trophy() {
 
 #[test]
 fn test_mint_multiple_trophies() {
-    let player1 = contract_address_const::<2>();
+    let player1 = 2.try_into().unwrap();
     let (soulbound_contract, erc721_dispatcher, owner) = setup();
     start_cheat_caller_address(soulbound_contract.contract_address, owner);
 
@@ -107,7 +104,7 @@ fn test_mint_multiple_trophies() {
 #[test]
 #[should_panic(expected_data: ('Trophy already owned',))]
 fn test_cannot_mint_same_trophy_twice() {
-    let player1 = contract_address_const::<2>();
+    let player1 = 2.try_into().unwrap();
     let (soulbound_contract, _, owner) = setup();
     start_cheat_caller_address(soulbound_contract.contract_address, owner);
 
@@ -119,8 +116,8 @@ fn test_cannot_mint_same_trophy_twice() {
 #[test]
 #[should_panic(expected_data: ('ERC721: Soulbound, transfers disabled',))]
 fn test_transfer_disabled() {
-    let player1 = contract_address_const::<2>();
-    let player2 = contract_address_const::<3>();
+    let player1 = 2.try_into().unwrap();
+    let player2 = 3.try_into().unwrap();
     let (soulbound_contract, erc721_dispatcher, owner) = setup();
     start_cheat_caller_address(soulbound_contract.contract_address, owner);
 

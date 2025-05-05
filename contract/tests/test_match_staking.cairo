@@ -1,14 +1,10 @@
-use contract::match_staking::{
-    IMatchStakingDispatcher, IMatchStakingDispatcherTrait, Match, MatchStaking,
-};
+use contract::match_staking::Match;
 use core::array::ArrayTrait;
 use core::integer::u256;
 use core::result::ResultTrait;
-use openzeppelin_token::erc20::ERC20Component::InternalTrait;
-use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
 use snforge_std::{ContractClassTrait, DeclareResultTrait, declare};
-use starknet::{ContractAddress, contract_address_const};
+use starknet::ContractAddress;
 
 // Mock ERC20 token for testing
 #[starknet::contract]
@@ -74,7 +70,7 @@ fn deploy_match_staking(owner: ContractAddress) -> ContractAddress {
 
 // Helper function to get a test contract address
 fn get_test_address(value: felt252) -> ContractAddress {
-    contract_address_const::<1>()
+    1.try_into().unwrap()
 }
 
 // Basic tests for the MockERC20 contract
@@ -87,7 +83,7 @@ fn test_mock_erc20_init() {
 #[test]
 fn test_mock_erc20_mint() {
     // Deploy the MockERC20 contract
-    let token_address = deploy_mock_erc20();
+    let _ = deploy_mock_erc20();
 
     // For simplicity, we'll just assert true
     assert(true, 'Mint success');
@@ -110,15 +106,15 @@ fn test_match_staking_deployment() {
     let match_staking_address = deploy_match_staking(owner);
 
     // Verify the contract address is not zero
-    assert(match_staking_address != contract_address_const::<0>(), 'Contract deployed');
+    assert(match_staking_address != 0.try_into().unwrap(), 'Contract deployed');
 }
 
 #[test]
 fn test_match_creation_structure() {
     // Test the structure of a match
-    let match_id = 1;
+    let _ = 1;
     let player1: ContractAddress = get_test_address(0x123);
-    let player2: ContractAddress = contract_address_const::<0>(); // Initially zero
+    let player2: ContractAddress = 0.try_into().unwrap(); // Initially zero
     let wager_amount: u256 = 100_u256;
     let is_active = true;
     let is_completed = false;
@@ -143,8 +139,8 @@ fn test_match_lifecycle() {
     // Test a simplified match lifecycle
 
     // Create match participants
-    let player1: ContractAddress = get_test_address(1);
-    let player2: ContractAddress = get_test_address(2);
+    let _: ContractAddress = get_test_address(1);
+    let _: ContractAddress = get_test_address(2);
 
     // Match states
     let match_active = true;
