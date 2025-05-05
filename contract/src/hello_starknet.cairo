@@ -29,4 +29,4 @@ pub mod HelloStarknet {
             self.balance.read()
         }
     }
-} 
+}

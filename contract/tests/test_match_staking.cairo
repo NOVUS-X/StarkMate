@@ -1,18 +1,20 @@
 use contract::match_staking::{
-    IMatchStakingDispatcher, IMatchStakingDispatcherTrait, MatchStaking, Match
+    IMatchStakingDispatcher, IMatchStakingDispatcherTrait, Match, MatchStaking,
 };
-use openzeppelin_token::erc20::{ERC20Component, ERC20Component::InternalTrait, ERC20HooksEmptyImpl};
-use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use starknet::{ContractAddress, contract_address_const};
-use snforge_std::{ContractClassTrait, DeclareResultTrait, declare};
 use core::array::ArrayTrait;
 use core::integer::u256;
 use core::result::ResultTrait;
+use openzeppelin_token::erc20::ERC20Component::InternalTrait;
+use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+use snforge_std::{ContractClassTrait, DeclareResultTrait, declare};
+use starknet::{ContractAddress, contract_address_const};
 
 // Mock ERC20 token for testing
 #[starknet::contract]
 mod MockERC20 {
-    use openzeppelin_token::erc20::{ERC20Component, ERC20Component::InternalTrait, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::ERC20Component::InternalTrait;
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -37,7 +39,7 @@ mod MockERC20 {
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ERC20Event: ERC20Component::Event
+        ERC20Event: ERC20Component::Event,
     }
 
     #[constructor]
@@ -86,7 +88,7 @@ fn test_mock_erc20_init() {
 fn test_mock_erc20_mint() {
     // Deploy the MockERC20 contract
     let token_address = deploy_mock_erc20();
-    
+
     // For simplicity, we'll just assert true
     assert(true, 'Mint success');
 }
@@ -95,7 +97,7 @@ fn test_mock_erc20_mint() {
 fn test_erc20_standard_values() {
     // Test to verify the standard ERC20 values
     let decimals = 18; // ERC20 default
-    
+
     // Validate decimals
     assert(decimals == 18, 'Correct decimals');
 }
@@ -106,12 +108,9 @@ fn test_match_staking_deployment() {
     // Test that MatchStaking can be deployed with an owner
     let owner: ContractAddress = get_test_address(0x123);
     let match_staking_address = deploy_match_staking(owner);
-    
+
     // Verify the contract address is not zero
-    assert(
-        match_staking_address != contract_address_const::<0>(), 
-        'Contract deployed'
-    );
+    assert(match_staking_address != contract_address_const::<0>(), 'Contract deployed');
 }
 
 #[test]
@@ -124,17 +123,12 @@ fn test_match_creation_structure() {
     let is_active = true;
     let is_completed = false;
     let token_address: ContractAddress = get_test_address(0x456);
-    
+
     // Create a Match structure
     let match_data = Match {
-        player1,
-        player2,
-        wager_amount,
-        is_active,
-        is_completed,
-        token_address
+        player1, player2, wager_amount, is_active, is_completed, token_address,
     };
-    
+
     // Verify the match structure
     assert(match_data.player1 == player1, 'Player1 match');
     assert(match_data.player2 == player2, 'Player2 is zero');
@@ -147,16 +141,16 @@ fn test_match_creation_structure() {
 #[test]
 fn test_match_lifecycle() {
     // Test a simplified match lifecycle
-    
+
     // Create match participants
     let player1: ContractAddress = get_test_address(1);
     let player2: ContractAddress = get_test_address(2);
-    
+
     // Match states
     let match_active = true;
     let match_completed = true;
-    
+
     // Verify the match lifecycle states
     assert(match_active, 'Match active');
     assert(match_completed, 'Match completed');
-} 
+}
