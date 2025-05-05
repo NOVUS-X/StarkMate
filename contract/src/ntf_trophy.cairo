@@ -57,7 +57,6 @@ pub struct TrophyDetails {
 #[starknet::contract]
 pub mod SoulboundTrophy {
     use openzeppelin_access::ownable::OwnableComponent;
-    use starknet::contract_address_const;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
         StoragePointerWriteAccess,
@@ -158,7 +157,7 @@ pub mod SoulboundTrophy {
         }
 
         fn mint_trophy(ref self: ContractState, player: ContractAddress, trophy_id: u256) {
-            assert(player != contract_address_const::<0>(), 'Invalid address');
+            assert(player != 0.try_into().unwrap(), 'Invalid address');
 
             let already_has_trophy = self.user_trophies.read((player, trophy_id));
             assert(!already_has_trophy, 'Trophy already owned');
@@ -177,7 +176,7 @@ pub mod SoulboundTrophy {
             self.user_trophy_count.write(player, user_count + 1);
 
             self.emit(TrophyMinted { player, trophy_id, trophy_name: trophy.name });
-            self.emit(Transfer { from: contract_address_const::<0>(), to: player, token_id });
+            self.emit(Transfer { from: 0.try_into().unwrap(), to: player, token_id });
         }
 
         fn has_trophy(self: @ContractState, player: ContractAddress, trophy_id: u256) -> bool {
@@ -197,13 +196,13 @@ pub mod SoulboundTrophy {
     #[abi(embed_v0)]
     impl ERC721Impl of super::IERC721<ContractState> {
         fn balance_of(self: @ContractState, owner: ContractAddress) -> u256 {
-            assert(owner != contract_address_const::<0>(), 'ERC721: Invalid address');
+            assert(owner != 0.try_into().unwrap(), 'ERC721: Invalid address');
             self.balances.read(owner)
         }
 
         fn owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
             let owner = self.owners.read(token_id);
-            assert(owner != contract_address_const::<0>(), 'Token does not exist');
+            assert(owner != 0.try_into().unwrap(), 'Token does not exist');
             owner
         }
 
@@ -234,7 +233,7 @@ pub mod SoulboundTrophy {
         }
 
         fn get_approved(self: @ContractState, token_id: u256) -> ContractAddress {
-            contract_address_const::<0>()
+            0.try_into().unwrap()
         }
 
         fn is_approved_for_all(
@@ -256,7 +255,7 @@ pub mod SoulboundTrophy {
 
         fn token_uri(self: @ContractState, token_id: u256) -> ByteArray {
             let owner = self.owners.read(token_id);
-            assert(owner != contract_address_const::<0>(), 'Token does not exist');
+            assert(owner != 0.try_into().unwrap(), 'Token does not exist');
             let trophy_id = self.token_to_trophy.read(token_id);
             let trophy = self._get_trophy(trophy_id);
             format!("{}", trophy.uri)
