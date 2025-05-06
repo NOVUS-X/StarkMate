@@ -48,7 +48,7 @@ export function WalletConnectModal({
             </p>
           </div>
           <div className="space-y-3">
-            {connectors.map((connector, index) => {
+            {connectors.map((connector) => {
               return (
                 <Button
                   key={connector.id}

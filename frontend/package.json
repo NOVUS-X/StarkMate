@@ -26,6 +26,7 @@
     "react-chessboard": "^4.7.3",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
+    "starknet": "^6.24.1",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
     "tw-animate-css": "^1.2.4"

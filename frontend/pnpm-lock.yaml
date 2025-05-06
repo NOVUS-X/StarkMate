@@ -59,6 +59,9 @@ importers:
       react-icons:
         specifier: ^5.5.0
         version: 5.5.0(react@19.0.0)
+      starknet:
+        specifier: ^6.24.1
+        version: 6.24.1
       tailwind-merge:
         specifier: ^3.0.2
         version: 3.0.2

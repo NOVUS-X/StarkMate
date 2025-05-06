@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import { useBalance } from "@starknet-react/core";
-import { useRouter } from "next/navigation";
 import { useAppContext } from "@/context/walletContext";
 import { WalletConnectModal } from "../WalletConnectModal";
 import { STRK_TOKEN_ADDRESS } from "@/constants/tokens";
@@ -13,7 +12,7 @@ const Connector: React.FC = () => {
     token: STRK_TOKEN_ADDRESS,
     address: address as "0x",
   });
-  const router = useRouter();
+  
 
 
   return (
