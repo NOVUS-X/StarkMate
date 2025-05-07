@@ -8,6 +8,7 @@ use std::time::Instant;
 use rand::prelude::*;
 use rand::distributions::Alphanumeric;
 use tokio::time::{sleep, Duration};
+use dotenv::dotenv;
 
 // Configuration
 const NUM_PLAYERS_TO_CREATE: usize = 100;
@@ -16,6 +17,7 @@ const BATCH_SIZE: usize = 100; // Insert games in batches
 
 // Helper to connect to the database
 async fn setup_db() -> Result<DatabaseConnection, DbErr> {
+    dotenv().ok(); // load .env if present
     let db_url = env::var("DATABASE_URL")
         .expect("DATABASE_URL environment variable not set for benchmark");
     Database::connect(&db_url).await
@@ -190,7 +192,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await?;
     let duration = start_time.elapsed();
     println!(
-        "- Query PGN content (final_ply > 50): Found {} games in {:.2?}",
+        "Querying {} games by PGN content (final_ply > 50) took: {:?}",
         games_by_pgn_content.len(),
         duration
     );
@@ -199,12 +201,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\nStarting cleanup (deleting benchmark games and players)... This might take a while.");
     let cleanup_start = Instant::now();
 
-    // Delete games (can be slow if cascade delete is not set up or if done one by one)
-    // A faster way is often TRUNCATE if acceptable, or batched deletes by ID range.
-    // For simplicity, using filter delete (might be slow on large datasets):
+    // Delete games associated with the benchmark players
     let delete_games_res = Game::delete_many()
-        .filter(game::Column::Id.is_not_null()) // Simple filter to target all games (adjust if needed)
-        // This assumes benchmark games don't overlap with real data. Add a specific filter if they do.
+        .filter(
+            game::Column::WhitePlayer.is_in(player_ids.clone())
+            .or(game::Column::BlackPlayer.is_in(player_ids.clone()))
+        )
         .exec(&db).await?;
     println!("  Deleted {} game records.", delete_games_res.rows_affected);
 

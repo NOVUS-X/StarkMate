@@ -1,6 +1,6 @@
-"""use sea_orm::*;
-// Assuming the entity crate is named `db_entity` and accessible
-// Adjust the path if your crate structure is different
+use dotenv::dotenv;
+use sea_orm::entity::prelude::Uuid;
+use sea_orm::*
 use db_entity::prelude::*;
 use db_entity::{game, player};
 use serde_json::json;

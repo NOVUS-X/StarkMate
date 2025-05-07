@@ -15,30 +15,38 @@ pub struct Model {
     pub fen: String,
     #[sea_orm(column_type = "JsonBinary")]
     pub pgn: Json,
-    pub result: String,
-    pub variant: String,
+    pub result: ResultSide,
+    pub variant: GameVariant,
     pub started_at: DateTimeWithTimeZone,
     pub duration_sec: i32,
+    pub created_at: DateTimeWithTimeZone,
+    pub updated_at: DateTimeWithTimeZone,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
         belongs_to = "super::player::Entity",
-        from = "Column::BlackPlayer",
-        to = "super::player::Column::Id",
-        on_update = "NoAction",
-        on_delete = "NoAction"
-    )]
-    Player2,
-    #[sea_orm(
-        belongs_to = "super::player::Entity",
         from = "Column::WhitePlayer",
         to = "super::player::Column::Id",
-        on_update = "NoAction",
-        on_delete = "NoAction"
+        on_update = "Restrict",
+        on_delete = "Restrict"
     )]
-    Player1,
+    WhitePlayer,
+    #[sea_orm(
+        belongs_to = "super::player::Entity",
+        from = "Column::BlackPlayer",
+        to = "super::player::Column::Id",
+        on_update = "Restrict",
+        on_delete = "Restrict"
+    )]
+    BlackPlayer,
+}
+
+impl Related<super::player::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::WhitePlayer.def()
+    }
 }
 
 impl ActiveModelBehavior for ActiveModel {}
