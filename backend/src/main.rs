@@ -36,7 +36,17 @@ async fn get_position(path: web::Path<u16>) -> Result<HttpResponse> {
 
 /// Get random Chess960 position
 async fn get_random_position() -> Result<HttpResponse> {
-    let position = Chess960Generator::get_random_position();
+    use rand::Rng;
+    let manager = POSITIONS_MANAGER.lock().unwrap();
+    let positions = manager.get_all_positions();
+    if positions.is_empty() {
+        return Ok(HttpResponse::InternalServerError().json(json!({
+            "error": "No positions loaded"
+        })));
+    }
+    let mut rng = rand::thread_rng();
+    let idx = rng.gen_range(0..positions.len());
+    let position = &positions[idx];
     Ok(HttpResponse::Ok().json(position))
 }
 
