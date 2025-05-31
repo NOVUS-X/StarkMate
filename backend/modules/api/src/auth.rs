@@ -100,19 +100,7 @@ pub async fn refresh_token(payload: Json<RefreshTokenRequest>) -> HttpResponse {
                 "expires_in": 3600
             }))
         }
-        Err(errors) => {
-            let error_strings: Vec<String> = errors
-                .field_errors()
-                .iter()
-                .flat_map(|(_, errs)| errs.iter().map(|err| err.message.clone().unwrap_or_default().to_string()))
-                .collect();
-            
-            HttpResponse::BadRequest().json(ValidationErrorResponse {
-                error: "Invalid refresh token format".to_string(),
-                code: 400,
-                details: Some(error_strings)
-            })
-        }
+        Err(errors) => ApiError::ValidationError(errors).error_response(),
     }
 }
 
