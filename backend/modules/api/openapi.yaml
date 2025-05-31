@@ -1,0 +1,15 @@
+openapi: 3.0.3
+info:
+  title: StarkMate Chess Platform API
+  version: 1.0.0
+  description: API for the StarkMate chess platform built on Starknet
+  contact:
+    name: StarkMate Team
+    url: https://starkmate.com/contact
+    email: support@starkmate.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+# This file will be generated automatically by the server
+# Use the script generate-client-sdks.sh to generate client SDKs
