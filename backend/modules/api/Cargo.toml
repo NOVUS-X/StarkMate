@@ -23,5 +23,4 @@ error = { path = "../error" }
 security = { path = "../security" }
 actix-cors = "0.7.0"
 utoipa-redoc = { version = "3", features = ["actix-web"] }
-error = { path = "../error" }
 entity = { path = "../db/entity" }

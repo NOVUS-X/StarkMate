@@ -118,7 +118,7 @@ pub async fn refresh_token(payload: Json<RefreshTokenRequest>) -> HttpResponse {
 
 #[utoipa::path(
     post,
-    path = "/v1/auth/protected/logout",
+    path = "/v1/auth/logout",
     responses(
         (status = 200, description = "Logout successful"),
         (status = 401, description = "Unauthorized", body = InvalidCredentialsResponse)

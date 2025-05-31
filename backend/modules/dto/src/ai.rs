@@ -6,7 +6,9 @@ use regex::Regex;
 
 // Define a regex for validating FEN chess position notation
 static FEN_REGEX: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"^([rnbqkpRNBQKP1-8]+/){7}[rnbqkpRNBQKP1-8]+\s[bw]\s(-|[KQkq]+)\s(-|[a-h][36])\s\d+\s\d+$").unwrap()
+    Regex::new(
+      r"^(?=\S*K)(?=\S*k)([rnbqkpRNBQKP1-8]+/){7}[rnbqkpRNBQKP1-8]+\s[bw]\s(-|[KQkq]+)\s(-|[a-h][36])\s\d+\s\d+$"
+    ).unwrap()
 });
 
 #[derive(Debug, Serialize, Deserialize, ToSchema, Validate)]
