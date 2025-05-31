@@ -1,10 +1,20 @@
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use validator::Validate;
+use once_cell::sync::Lazy;
+use regex::Regex;
+
+// Define a regex for validating FEN chess position notation
+static FEN_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"^([rnbqkpRNBQKP1-8]+/){7}[rnbqkpRNBQKP1-8]+\s[bw]\s(-|[KQkq]+)\s(-|[a-h][36])\s\d+\s\d+$").unwrap()
+});
 
 #[derive(Debug, Serialize, Deserialize, ToSchema, Validate)]
 pub struct AiSuggestionRequest {
-    #[validate(length(min = 10, message = "Must be a valid FEN string"))]
+    #[validate(regex(
+        path = "FEN_REGEX", 
+        message = "Must be a valid FEN string in format: [piece placement] [active color] [castling] [en passant] [halfmove clock] [fullmove number]"
+    ))]
     #[schema(example = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")]
     pub fen: String,
     
@@ -36,11 +46,14 @@ pub struct AiSuggestionResponse {
 
 #[derive(Debug, Serialize, Deserialize, ToSchema, Validate)]
 pub struct PositionAnalysisRequest {
-    #[validate(length(min = 10, message = "Must be a valid FEN string"))]
+    #[validate(regex(
+        path = "FEN_REGEX",
+        message = "Must be a valid FEN string in format: [piece placement] [active color] [castling] [en passant] [halfmove clock] [fullmove number]"
+    ))]
     #[schema(example = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")]
     pub fen: String,
     
-    #[validate(range(min = 1, max = 25, message = "Depth must be between 1 and 25"))]
+    #[validate(range(min = 1, max = 30, message = "Depth must be between 1 and 30"))]
     #[schema(example = 15)]
     pub depth: u8,
 }

@@ -65,6 +65,7 @@ impl Modify for SecurityAddon {
             dto::games::JoinGameRequest,
             dto::games::GameStatus,
             dto::games::GameResult,
+            games::ListGamesQuery,
             
             // Auth schemas
             dto::auth::LoginRequest,
@@ -126,6 +127,11 @@ Connect to the WebSocket server:
 ```
 ws://hostname:port/ws/game/{game_id}?token={jwt_token}
 ```
+
+### Authentication
+JWT authentication is mandatory for all WebSocket connections. Provide your JWT token (obtained via login or token refresh) as a query parameter in the connection URL.
+
+If authentication fails or the token is missing, the connection will be immediately closed with an authentication_error message.
 
 ## Event Types
 

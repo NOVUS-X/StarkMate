@@ -77,6 +77,36 @@ The API uses JWT Bearer tokens for authentication:
 Authorization: Bearer <your-jwt-token>
 ```
 
+Protected endpoints (like logout) are secured with JWT authentication middleware, which validates the token's signature and expiration time.
+
+### JWT Configuration
+
+JWT tokens are configured with:
+- 1 hour expiration for access tokens
+- 7 day expiration for refresh tokens
+- Signed using HS256 algorithm with the `JWT_SECRET_KEY`
+
+### Environment Variables
+
+- `JWT_SECRET_KEY` - Secret key for JWT token generation and validation (default: development key, **not secure for production**)
+
+⚠️ **Security Note**: Always set a strong, unique `JWT_SECRET_KEY` in production environments.
+
+## CORS Configuration
+
+The API includes CORS (Cross-Origin Resource Sharing) middleware for handling requests from web clients. By default, it's configured to be permissive in development mode, but can be restricted in production:
+
+### Environment Variables
+
+- `ALLOWED_ORIGINS`: Comma-separated list of allowed origins (e.g., `http://localhost:3000,https://starkmate.com`)
+
+Example with specific origins:
+```bash
+ALLOWED_ORIGINS=http://localhost:3000,https://starkmate.com cargo run
+```
+
+If not specified, the server will allow all origins (suitable for development only).
+
 ## WebSocket Communication
 
 The WebSocket protocol is documented at `/api/docs/websocket`, covering:

@@ -7,6 +7,7 @@ use error::error::custom_json_error;
 use utoipa_swagger_ui::SwaggerUi;
 use utoipa_redoc::Redoc;
 use std::env;
+use security::JwtAuthMiddleware;
 use crate::players::{add_player, delete_player, find_player_by_id, update_player};
 use crate::games::{create_game, get_game, make_move, list_games, join_game, abandon_game};
 use crate::auth::{login, register, refresh_token, logout};
@@ -33,15 +34,52 @@ pub async fn main() -> std::io::Result<()> {
 
     // Read server address from env or default
     let server_addr = env::var("SERVER_ADDR").unwrap_or_else(|_| "127.0.0.1:8080".to_string());
+    
+    // Get JWT secret key from environment or use a default (for development only)
+    let jwt_secret = env::var("JWT_SECRET_KEY").unwrap_or_else(|_| "development_secret_key".to_string());
 
     // Initialize logger (env_logger controlled via RUST_LOG)
     env_logger::init();
 
     println!("Starting StarkMate server at http://{}", &server_addr);
+    
+    // CORS configuration notice
+    println!("CORS configuration: Set ALLOWED_ORIGINS env var with comma-separated origins");
+    println!("Example: ALLOWED_ORIGINS=http://localhost:3000,https://starkmate.com");
+    println!("If not set, all origins will be allowed (development mode only)");
 
     HttpServer::new(move || {
+        // Configure CORS middleware with environment variables for flexibility
+        let cors = {
+            let mut cors = Cors::default()
+                .allow_any_method()
+                .allow_any_header()
+                .max_age(3600);
+            
+            // Get allowed origins from environment variable, fallback to all origins in development
+            if let Ok(allowed_origins) = env::var("ALLOWED_ORIGINS") {
+                // Parse comma-separated list of allowed origins
+                let origins: Vec<&str> = allowed_origins.split(',').collect();
+                for origin in origins {
+                    cors = cors.allowed_origin(origin.trim());
+                }
+                println!("CORS configured with specific origins: {}", allowed_origins);
+            } else {
+                // In development, allow all origins by default
+                cors = cors.allow_any_origin();
+                println!("CORS configured to allow any origin (development mode)");
+            }
+            
+            cors
+        };
+        
+        // Clone the JWT secret for use in middleware
+        let jwt_secret = jwt_secret.clone();
+
         App::new()
-            // Add your app_data first
+            // Add CORS middleware first
+            .wrap(cors)
+            // Add your app_data
             .app_data(web::JsonConfig::default().error_handler(custom_json_error))
             // Register your routes
             .route("/health", web::get().to(health))
@@ -70,7 +108,12 @@ pub async fn main() -> std::io::Result<()> {
                     .service(login)
                     .service(register)
                     .service(refresh_token)
-                    .service(logout),
+                    // Protected route with JWT authentication
+                    .service(
+                        web::scope("/protected")
+                            .wrap(JwtAuthMiddleware::new(jwt_secret.clone()))
+                            .service(logout)
+                    ),
             )
             // AI routes
             .service(

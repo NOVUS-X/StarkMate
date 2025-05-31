@@ -4,7 +4,7 @@ use actix_web::{
 };
 use dto::{
     ai::{AiSuggestionRequest, AiSuggestionResponse, PositionAnalysisRequest, PositionAnalysisResponse},
-    responses::InvalidCredentialsResponse,
+    responses::ValidationErrorResponse,
 };
 use error::error::ApiError;
 use serde_json::json;
@@ -16,7 +16,7 @@ use validator::Validate;
     request_body = AiSuggestionRequest,
     responses(
         (status = 200, description = "AI suggestion generated", body = AiSuggestionResponse),
-        (status = 400, description = "Invalid FEN position", body = InvalidCredentialsResponse)
+        (status = 400, description = "Invalid FEN position", body = ValidationErrorResponse)
     ),
     security(
         ("jwt_auth" = [])
@@ -37,7 +37,19 @@ pub async fn get_ai_suggestion(payload: Json<AiSuggestionRequest>) -> HttpRespon
                 "computation_time_ms": 2345
             }))
         }
-        Err(errors) => ApiError::ValidationError(errors).error_response(),
+        Err(errors) => {
+            let error_strings: Vec<String> = errors
+                .field_errors()
+                .iter()
+                .flat_map(|(_, errs)| errs.iter().map(|err| err.message.clone().unwrap_or_default().to_string()))
+                .collect();
+            
+            HttpResponse::BadRequest().json(ValidationErrorResponse {
+                error: "Invalid FEN position or parameters".to_string(),
+                code: 400,
+                details: Some(error_strings)
+            })
+        }
     }
 }
 
@@ -47,7 +59,7 @@ pub async fn get_ai_suggestion(payload: Json<AiSuggestionRequest>) -> HttpRespon
     request_body = PositionAnalysisRequest,
     responses(
         (status = 200, description = "Position analysis completed", body = PositionAnalysisResponse),
-        (status = 400, description = "Invalid FEN position", body = InvalidCredentialsResponse)
+        (status = 400, description = "Invalid FEN position", body = ValidationErrorResponse)
     ),
     security(
         ("jwt_auth" = [])
@@ -76,6 +88,18 @@ pub async fn analyze_position(payload: Json<PositionAnalysisRequest>) -> HttpRes
                 "position_type": "Open Game"
             }))
         }
-        Err(errors) => ApiError::ValidationError(errors).error_response(),
+        Err(errors) => {
+            let error_strings: Vec<String> = errors
+                .field_errors()
+                .iter()
+                .flat_map(|(_, errs)| errs.iter().map(|err| err.message.clone().unwrap_or_default().to_string()))
+                .collect();
+            
+            HttpResponse::BadRequest().json(ValidationErrorResponse {
+                error: "Invalid FEN position or parameters".to_string(),
+                code: 400,
+                details: Some(error_strings)
+            })
+        }
     }
 }

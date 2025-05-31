@@ -1,8 +1,26 @@
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use uuid::Uuid;
-use validator::Validate;
+use validator::{Validate, ValidationError};
 use chrono::{DateTime, Utc};
+use once_cell::sync::Lazy;
+use regex::Regex;
+
+// Define a regex for validating chess moves in algebraic notation
+static CHESS_MOVE_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"^[a-h][1-8][a-h][1-8][qrbnQRBN]?$").unwrap()
+});
+
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub enum PlayerColor {
+    #[serde(rename = "white")]
+    White,
+    #[serde(rename = "black")]
+    Black,
+    #[serde(rename = "random")]
+    Random,
+}
+
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub enum GameStatus {
@@ -36,7 +54,7 @@ pub struct CreateGameRequest {
     #[validate(range(min = 0, max = 60, message = "Increment must be between 0 and 60 seconds"))]
     pub increment: i32,
     
-    pub player_color: Option<String>,
+    pub player_color: Option<PlayerColor>,
     pub opponent_id: Option<Uuid>,
 }
 
@@ -75,13 +93,25 @@ pub struct GameDisplayDTO {
 
 #[derive(Debug, Serialize, Deserialize, ToSchema, Validate)]
 pub struct MakeMoveRequest {
-    #[validate(length(min = 4, max = 5, message = "Move must be in algebraic notation (e.g., 'e2e4', 'g7g8q')"))]
+    #[validate(regex(
+        path = "CHESS_MOVE_REGEX",
+        message = "Move must be in valid algebraic notation (e.g., 'e2e4', 'g7g8q')"
+    ))]
     #[schema(example = "e2e4")]
     pub chess_move: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema, Validate)]
 pub struct JoinGameRequest {
+    #[validate(custom = "validate_uuid")]
     #[schema(value_type = String, format = "uuid", example = "123e4567-e89b-12d3-a456-426614174000")]
     pub player_id: Uuid,
+}
+
+// UUID validation function
+pub fn validate_uuid(uuid: &Uuid) -> Result<(), ValidationError> {
+    if uuid.is_nil() {
+        return Err(ValidationError::new("Nil UUID is not allowed"));
+    }
+    Ok(())
 }

@@ -11,5 +11,19 @@ info:
     name: MIT
     url: https://opensource.org/licenses/MIT
 
+# Global security requirement - enforces JWT auth on all endpoints by default
+# (individual endpoints can override this)
+security:
+  - bearerAuth: []
+
+# Components section with security schemes
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token authentication. Example: Bearer {token}
+
 # This file will be generated automatically by the server
 # Use the script generate-client-sdks.sh to generate client SDKs

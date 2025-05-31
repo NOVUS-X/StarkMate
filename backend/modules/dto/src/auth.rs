@@ -2,6 +2,20 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use validator::Validate;
 use uuid::Uuid;
+use once_cell::sync::Lazy;
+use regex::Regex;
+
+// Define a regex for strong password validation
+// Requires at least one uppercase, one lowercase, one digit, and one special character
+static STRONG_PASSWORD_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$").unwrap()
+});
+
+// Define a regex for Ethereum wallet address validation
+// Requires 0x prefix followed by 40 hex characters
+static WALLET_ADDRESS_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"^0x[a-fA-F0-9]{40}$").unwrap()
+});
 
 #[derive(Debug, Serialize, Deserialize, ToSchema, Validate)]
 pub struct LoginRequest {
@@ -9,8 +23,14 @@ pub struct LoginRequest {
     #[schema(example = "chess_master")]
     pub username: String,
     
-    #[validate(length(min = 8, message = "Password must be at least 8 characters"))]
-    #[schema(example = "secure_password123")]
+    #[validate(
+        length(min = 8, message = "Password must be at least 8 characters"),
+        regex(
+            path = "STRONG_PASSWORD_REGEX",
+            message = "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character"
+        )
+    )]
+    #[schema(example = "Secure_password123!")]
     pub password: String,
 }
 
@@ -53,16 +73,27 @@ pub struct RegisterRequest {
     #[schema(example = "chess@example.com")]
     pub email: String,
     
-    #[validate(length(min = 8, message = "Password must be at least 8 characters"))]
-    #[schema(example = "secure_password123")]
+    #[validate(
+        length(min = 8, message = "Password must be at least 8 characters"),
+        regex(
+            path = "STRONG_PASSWORD_REGEX",
+            message = "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character"
+        )
+    )]
+    #[schema(example = "Secure_password123!")]
     pub password: String,
     
-    #[schema(example = "0x123abc...")]
+    #[validate(regex(
+        path = "WALLET_ADDRESS_REGEX",
+        message = "Wallet address must be a valid 0x-prefixed 40 hex character string"
+    ))]
+    #[schema(example = "0x1234567890abcdef1234567890abcdef12345678")]
     pub wallet_address: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, ToSchema, Validate)]
 pub struct RefreshTokenRequest {
+    #[validate(length(min = 10, message = "Refresh token is required and must be valid"))]
     #[schema(example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")]
     pub refresh_token: String,
 }
