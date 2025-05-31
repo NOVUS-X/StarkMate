@@ -49,7 +49,8 @@ impl Chess960Generator {
                                 
                                 // Find remaining positions for bishops
                                let pieces = [king, queen, rook1, rook2, knight1, knight2];
-let occupied: std::collections::HashSet<_> = pieces.iter().collect();
+let occupied: std::collections::HashSet<_> = pieces.iter().copied().collect();
+
 
                                 let free: Vec<usize> = (0..=7)
                                     .filter(|pos| !occupied.contains(pos))
@@ -135,8 +136,7 @@ let occupied: std::collections::HashSet<_> = pieces.iter().collect();
             position.white_knight_positions[0],
             position.white_knight_positions[1],
         ];
-        
-        let unique_positions: std::collections::HashSet<_> = positions.iter().collect();
+        let unique_positions: std::collections::HashSet<_> = positions.iter().copied().collect();
         unique_positions.len() == 8
     }
 }

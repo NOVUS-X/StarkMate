@@ -26,7 +26,7 @@ Get a Chess960 position by number or random
 Get FEN string for specific position
 
 ### POST /api/chess960/verify
-Verify if FEN is valid Chess960 position
++Verify if FEN is a valid Chess960 position
 
 ### GET /api/chess960/stats
 Get library statistics

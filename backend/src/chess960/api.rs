@@ -42,7 +42,6 @@ pub async fn get_position(query: web::Query<PositionQuery>) -> Result<HttpRespon
     
     let position = if query.random.unwrap_or(false) {
         // Get random position
-        use rand::Rng;
         let mut rng = rand::thread_rng();
         let random_id = rng.gen_range(1..=960);
         library.positions.get(&random_id).cloned()
@@ -87,7 +86,7 @@ pub async fn get_fen(path: web::Path<u16>) -> Result<HttpResponse> {
         })),
     }
 }
-lazy_static::lazy_static! {
+lazy_static! {
     static ref CHESS960_FENS: std::collections::HashSet<String> = {
         CHESS960_LIBRARY.positions.values()
             .map(|pos| pos.fen.clone())
@@ -108,7 +107,7 @@ lazy_static::lazy_static! {
         },
     }))
 }
-lazy_static::lazy_static! {
+lazy_static! {
     static ref KING_DISTRIBUTION: std::collections::HashMap<usize, u32> = {
          let mut distribution = std::collections::HashMap::new();
          for position in CHESS960_LIBRARY.positions.values() {
