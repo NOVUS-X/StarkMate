@@ -7,4 +7,4 @@ pub mod player_profile;
 // Re-export modules
 pub use hello_starknet::IHelloStarknet;
 pub use match_staking::{IMatchStaking, Match};
-pub use player_profile::player_profile::IPlayerProfile;
+pub use player_profile::PlayerProfile::IPlayerProfile;

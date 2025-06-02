@@ -79,7 +79,7 @@ pub mod PlayerProfile {
 
             // Check if username is already taken
             let existing_address = self.username_to_address.read(username);
-            assert(existing_address == 0.try_into().unwrap(), 'Username already taken');
+            assert(existing_address.is_zero(), 'Username already taken');
 
             // Create new profile with initial stats
             let initial_stats = PlayerStats {
