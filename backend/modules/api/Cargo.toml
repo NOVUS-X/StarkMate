@@ -7,6 +7,8 @@ edition = "2024"
 dotenv = "0.15.0"
 env_logger = "0.11.8"
 actix-web = "4"
+actix = "0.13"
+actix-web-actors = "4"
 serde = { version = "1.0", features = ["derive"] }
 uuid = { version = "1", features = ["v4", "serde"] }
 serde_json = "1"
@@ -15,7 +17,7 @@ utoipa-actix-web = "0.1"
 utoipa-swagger-ui = { version = "9", features = ["actix-web"] }
 validator = { version = "0.16", features = ["derive"] }
 validator_types = "0.16"
-
+jsonwebtoken = "8"
 db = { path = "../db" }
 dto = { path = "../dto" }
 service = { path = "../service" }
@@ -23,4 +25,4 @@ error = { path = "../error" }
 security = { path = "../security" }
 actix-cors = "0.7.0"
 utoipa-redoc = { version = "3", features = ["actix-web"] }
-entity = { path = "../db/entity" }
+entity = { path = "../db/entity", package = "db_entity" }
