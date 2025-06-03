@@ -7,4 +7,4 @@ pub mod tournament_manager;
 // Re-export modules
 pub use hello_starknet::IHelloStarknet;
 pub use match_staking::{IMatchStaking, Match};
-pub use tournament_manager::{ITournamentManager, Tournament, TournamentStatus, BracketMatch};
+pub use tournament_manager::{BracketMatch, ITournamentManager, Tournament, TournamentStatus};
