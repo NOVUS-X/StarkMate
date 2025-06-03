@@ -3,7 +3,7 @@ use starknet::ContractAddress;
 #[starknet::interface]
 pub trait IPlayerProfile<TContractState> {
     fn create_profile(ref self: TContractState, address: ContractAddress, username: felt252);
-    fn update_stats(ref self: TContractState, address: ContractAddress, win: u32, loss: u32);
+    fn update_stats(ref self: TContractState, address: ContractAddress, is_win: bool);
     fn get_profile(self: @TContractState, address: ContractAddress) -> PlayerProfile;
     fn get_username(self: @TContractState, address: ContractAddress) -> felt252;
     fn get_stats(self: @TContractState, address: ContractAddress) -> PlayerStats;
@@ -117,7 +117,8 @@ pub mod PlayerProfile {
 
             // Calculate new ranking (simple implementation - can be enhanced)
             if stats.games_played > 0 {
-                stats.ranking = (stats.wins * 100) / (stats.games_played);
+                // Use saturating multiplication or add overflow check
+                stats.ranking = stats.wins.saturating_mul(100) / stats.games_played;
             }
 
             // Update profile
