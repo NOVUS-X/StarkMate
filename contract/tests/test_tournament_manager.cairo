@@ -94,31 +94,23 @@ fn setup() -> (ITournamentManagerDispatcher, ContractAddress) {
     let tournament_manager = deploy_tournament_manager(OWNER());
     let token_address = deploy_mock_erc20();
 
+    // Create a dispatcher for the MockERC20 contract
+    let mock_erc20_dispatcher = IMockERC20Dispatcher { contract_address: token_address };
+
     // Mint tokens to test accounts
-    let mock_erc20 = openzeppelin_token::erc20::interface::IERC20Dispatcher {
-        contract_address: token_address,
-    };
-
-    // We need to use the mint function from our MockERC20
-    let mock_token_contract = starknet::syscalls::call_contract_syscall(
-        token_address,
-        selector!("mint"),
-        array![ORGANIZER().into(), 10000_u256.low.into(), 10000_u256.high.into()].span(),
-    );
-
-    let mock_token_contract = starknet::syscalls::call_contract_syscall(
-        token_address,
-        selector!("mint"),
-        array![PLAYER1().into(), 1000_u256.low.into(), 1000_u256.high.into()].span(),
-    );
-
-    let mock_token_contract = starknet::syscalls::call_contract_syscall(
-        token_address,
-        selector!("mint"),
-        array![PLAYER2().into(), 1000_u256.low.into(), 1000_u256.high.into()].span(),
-    );
+    mock_erc20_dispatcher.mint(ORGANIZER(), 10000_u256);
+    mock_erc20_dispatcher.mint(PLAYER1(), 1000_u256);
+    mock_erc20_dispatcher.mint(PLAYER2(), 1000_u256);
+    mock_erc20_dispatcher.mint(PLAYER3(), 1000_u256);
+    mock_erc20_dispatcher.mint(PLAYER4(), 1000_u256);
 
     (tournament_manager, token_address)
+}
+
+// Add interface for MockERC20
+#[starknet::interface]
+trait IMockERC20<TContractState> {
+    fn mint(ref self: TContractState, recipient: ContractAddress, amount: u256);
 }
 
 #[test]
@@ -148,6 +140,7 @@ fn test_create_tournament() {
     assert(tournament.max_participants == 4, 'Wrong max participants');
     assert(tournament.entry_fee == 100, 'Wrong entry fee');
     assert(tournament.prize_pool == 1000, 'Wrong prize pool');
+    assert(tournament.status == TournamentStatus::RegistrationOpen, 'Wrong status');
 
     stop_cheat_caller_address(tournament_manager.contract_address);
 }
@@ -221,20 +214,24 @@ fn test_tournament_lifecycle() {
             token_address,
         );
 
-    // Register 4 players
+    // Register 4 players - need to set timestamp for each registration
     let players = array![PLAYER1(), PLAYER2(), PLAYER3(), PLAYER4()];
     let mut i = 0;
     while i < players.len() {
         let player = *players.at(i);
         start_cheat_caller_address(tournament_manager.contract_address, player);
+        start_cheat_block_timestamp(tournament_manager.contract_address, 1200); // Before deadline
         tournament_manager.register_player(tournament_id);
         stop_cheat_caller_address(tournament_manager.contract_address);
         i += 1;
     }
 
-    // Check tournament is full and registration closed
+    // Check tournament status after all players registered
     let tournament = tournament_manager.get_tournament(tournament_id);
     assert(tournament.current_participants == 4, 'Should have 4 participants');
+    assert(
+        tournament.status == TournamentStatus::RegistrationClosed, 'Should be registration closed',
+    );
 
     // Start tournament
     start_cheat_caller_address(tournament_manager.contract_address, ORGANIZER());
@@ -268,6 +265,7 @@ fn test_bracket_generation() {
     while i < players.len() {
         let player = *players.at(i);
         start_cheat_caller_address(tournament_manager.contract_address, player);
+        start_cheat_block_timestamp(tournament_manager.contract_address, 1200);
         tournament_manager.register_player(tournament_id);
         stop_cheat_caller_address(tournament_manager.contract_address);
         i += 1;
@@ -285,6 +283,13 @@ fn test_bracket_generation() {
 
     let current_round_matches = tournament_manager.get_current_round_matches(tournament_id);
     assert(current_round_matches.len() == 2, 'Should have 2 matches in current round');
+
+    // Verify match details
+    let first_match = *bracket.at(0);
+    assert(first_match.round == 1, 'Should be round 1');
+    assert(first_match.status == MatchStatus::Pending, 'Should be pending');
+    assert(first_match.player1 == PLAYER1(), 'Wrong player1');
+    assert(first_match.player2 == PLAYER2(), 'Wrong player2');
 
     stop_cheat_caller_address(tournament_manager.contract_address);
 }
@@ -329,7 +334,7 @@ fn test_late_registration() {
 
     // Try to register after deadline
     start_cheat_caller_address(tournament_manager.contract_address, PLAYER1());
-    start_cheat_block_timestamp(tournament_manager.contract_address, 1600); // After deadline
+    start_cheat_block_timestamp(tournament_manager.contract_address, 1600); // After deadline (1500)
 
     tournament_manager.register_player(tournament_id);
 }
@@ -352,6 +357,67 @@ fn test_tournament_cancellation() {
 
     let tournament = tournament_manager.get_tournament(tournament_id);
     assert(tournament.status == TournamentStatus::Cancelled, 'Tournament should be cancelled');
+
+    stop_cheat_caller_address(tournament_manager.contract_address);
+}
+
+#[test]
+fn test_complete_match_flow() {
+    let (tournament_manager, token_address) = setup();
+
+    // Setup tournament with 4 players
+    start_cheat_caller_address(tournament_manager.contract_address, ORGANIZER());
+    start_cheat_block_timestamp(tournament_manager.contract_address, 1000);
+
+    let tournament_id = tournament_manager
+        .create_tournament(
+            'Test Tournament', 'A test tournament', 2000, 1500, 4, 0, 1000, token_address,
+        );
+
+    // Register players
+    let players = array![PLAYER1(), PLAYER2(), PLAYER3(), PLAYER4()];
+    let mut i = 0;
+    while i < players.len() {
+        let player = *players.at(i);
+        start_cheat_caller_address(tournament_manager.contract_address, player);
+        start_cheat_block_timestamp(tournament_manager.contract_address, 1200);
+        tournament_manager.register_player(tournament_id);
+        stop_cheat_caller_address(tournament_manager.contract_address);
+        i += 1;
+    }
+
+    // Start tournament
+    start_cheat_caller_address(tournament_manager.contract_address, ORGANIZER());
+    start_cheat_block_timestamp(tournament_manager.contract_address, 2000);
+
+    tournament_manager.start_tournament(tournament_id);
+
+    // Get first round matches
+    let matches = tournament_manager.get_current_round_matches(tournament_id);
+    assert(matches.len() == 2, 'Should have 2 matches in round 1');
+
+    // Report results for both matches
+    let match1 = *matches.at(0);
+    let match2 = *matches.at(1);
+
+    tournament_manager.report_match_result(tournament_id, match1.match_id, match1.player1);
+    tournament_manager.report_match_result(tournament_id, match2.match_id, match2.player1);
+
+    // Tournament should auto-advance or we need to manually advance
+    // Check if tournament advanced to final
+    let tournament_after_round1 = tournament_manager.get_tournament(tournament_id);
+
+    // If auto-advance is working, tournament should be in round 2 or completed
+    // If not, we need to manually advance
+    if tournament_after_round1.current_round == 1 {
+        tournament_manager.advance_round(tournament_id);
+    }
+
+    let tournament = tournament_manager.get_tournament(tournament_id);
+    assert(
+        tournament.current_round >= 2 || tournament.status == TournamentStatus::Completed,
+        'Should advance to next round or complete',
+    );
 
     stop_cheat_caller_address(tournament_manager.contract_address);
 }
