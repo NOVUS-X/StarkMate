@@ -17,7 +17,7 @@ utoipa-actix-web = "0.1"
 utoipa-swagger-ui = { version = "9", features = ["actix-web"] }
 validator = { version = "0.16", features = ["derive"] }
 validator_types = "0.16"
-jsonwebtoken = "8"
+jsonwebtoken = "9.3.1"
 db = { path = "../db" }
 dto = { path = "../dto" }
 service = { path = "../service" }
