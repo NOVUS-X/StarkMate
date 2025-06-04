@@ -12,6 +12,7 @@ use crate::players::{add_player, delete_player, find_player_by_id, update_player
 use crate::games::{create_game, get_game, make_move, list_games, join_game, abandon_game};
 use crate::auth::{login, register, refresh_token, logout};
 use crate::ai::{get_ai_suggestion, analyze_position};
+use crate::ws::{LobbyState, ws_route};
 
 mod openapi;
 use openapi::ApiDoc;
@@ -48,6 +49,9 @@ pub async fn main() -> std::io::Result<()> {
     println!("Example: ALLOWED_ORIGINS=http://localhost:3000,https://starkmate.com");
     println!("If not set, all origins will be allowed (development mode only)");
 
+    // Create a shared LobbyState actor
+    let lobby = LobbyState::new().start();
+
     HttpServer::new(move || {
         // Configure CORS middleware with environment variables for flexibility
         let cors = {
@@ -81,6 +85,9 @@ pub async fn main() -> std::io::Result<()> {
             .wrap(cors)
             // Add your app_data
             .app_data(web::JsonConfig::default().error_handler(custom_json_error))
+            // WebSocket route mounting
+            .app_data(web::Data::new(lobby.clone()))
+            .route("/ws/{game_id}", web::get().to(ws_route))
             // Register your routes
             .route("/health", web::get().to(health))
             .route("/", web::get().to(greet))
