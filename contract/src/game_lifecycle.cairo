@@ -1,5 +1,17 @@
 use starknet::ContractAddress;
 use core::traits::Into;
+use core::option::OptionTrait;
+use core::traits::TryInto;
+use core::result::ResultTrait;
+
+// Import dispatchers
+use match_staking::IMatchStakingDispatcher;
+use match_result_storage::IMatchResultStorageDispatcher;
+
+// Constants
+const ZERO_ADDRESS: ContractAddress = 0x0.try_into().unwrap();
+const PLAYER1_WIN: felt252 = 1;
+const PLAYER2_WIN: felt252 = 2;
 
 #[starknet::interface]
 pub trait IGameLifecycle<TContractState> {
@@ -39,7 +51,7 @@ pub enum GameStatus {
 pub mod GameLifecycle {
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::{ContractAddress, get_caller_address, get_block_info};
-    use super::{Game, GameStatus, IGameLifecycle};
+    use super::{Game, GameStatus, IGameLifecycle, ZERO_ADDRESS, PLAYER1_WIN, PLAYER2_WIN};
     use openzeppelin_access::ownable::OwnableComponent;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
@@ -100,6 +112,14 @@ pub mod GameLifecycle {
         match_staking: ContractAddress,
         match_result_storage: ContractAddress,
     ) {
+        // Validate addresses are non-zero
+        assert(owner != ZERO_ADDRESS, 'Owner address cannot be zero');
+        assert(match_staking != ZERO_ADDRESS, 'Match staking address cannot be zero');
+        assert(
+            match_result_storage != ZERO_ADDRESS,
+            'Match result storage address cannot be zero',
+        );
+
         self.ownable.initializer(owner);
         self.match_staking.write(match_staking);
         self.match_result_storage.write(match_result_storage);
@@ -128,7 +148,7 @@ pub mod GameLifecycle {
             let timestamp = get_block_info().unbox().block_timestamp;
             let new_game = Game {
                 player1,
-                player2: 0.try_into().unwrap(),
+                player2: ZERO_ADDRESS,
                 stake,
                 status: GameStatus::Created,
                 created_at: timestamp,
@@ -140,7 +160,8 @@ pub mod GameLifecycle {
             // Create match in staking contract
             let match_staking = self.match_staking.read();
             let staking_dispatcher = IMatchStakingDispatcher { contract_address: match_staking };
-            let _ = staking_dispatcher.create_match(game_id, player1, stake);
+            let create_success = staking_dispatcher.create_match(game_id, player1, stake);
+            assert(create_success, 'Failed to create match in staking contract');
 
             // Emit event
             self.emit(GameCreated { game_id, player1, stake });
@@ -151,9 +172,10 @@ pub mod GameLifecycle {
         fn join_game(ref self: ContractState, game_id: felt252) -> bool {
             // Only allow joining by the player2 or contract owner
             let caller = get_caller_address();
+            assert(caller != ZERO_ADDRESS, 'Invalid player address');
             assert(
-                caller != 0.try_into().unwrap(),
-                'Invalid player address',
+                caller != self.ownable.owner(),
+                'Owner cannot join as player2',
             );
 
             // Get existing game
@@ -161,13 +183,14 @@ pub mod GameLifecycle {
 
             // Validate game state
             assert(game.status == GameStatus::Created, 'Game not available');
-            assert(game.player2 == 0.try_into().unwrap(), 'Game already joined');
+            assert(game.player2 == ZERO_ADDRESS, 'Game already joined');
             assert(game.player1 != caller, 'Cannot join your own game');
 
             // Join match in staking contract
             let match_staking = self.match_staking.read();
             let staking_dispatcher = IMatchStakingDispatcher { contract_address: match_staking };
-            let _ = staking_dispatcher.join_match(game_id, caller);
+            let join_success = staking_dispatcher.join_match(game_id, caller);
+            assert(join_success, 'Failed to join match in staking contract');
 
             // Update game state
             let updated_game = Game {
@@ -208,7 +231,8 @@ pub mod GameLifecycle {
             // Submit result to staking contract
             let match_staking = self.match_staking.read();
             let staking_dispatcher = IMatchStakingDispatcher { contract_address: match_staking };
-            let _ = staking_dispatcher.claim_match(game_id, winner);
+            let claim_success = staking_dispatcher.claim_match(game_id, winner);
+            assert(claim_success, 'Failed to claim match in staking contract');
 
             // Update game state
             let timestamp = get_block_info().unbox().block_timestamp;
@@ -228,7 +252,7 @@ pub mod GameLifecycle {
             let result_storage_dispatcher = IMatchResultStorageDispatcher {
                 contract_address: match_result_storage,
             };
-            let result = if winner == game.player1 { 1 } else { 2 };
+            let result = if winner == game.player1 { PLAYER1_WIN } else { PLAYER2_WIN };
             result_storage_dispatcher.store_result(
                 game_id,
                 game.player1,
