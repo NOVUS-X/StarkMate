@@ -63,12 +63,13 @@ pub async fn handle_connection(
 
             // Handle room broadcasts
             _ = async {
-                // Create receivers for each room if needed
-                while room_receivers.len() < room_senders.len() {
-                    let idx = room_receivers.len();
-                    let (_, sender) = &room_senders[idx];
-                    room_receivers.push(sender.subscribe());
-                }
+               // Rebuild receivers when room_senders changes
+if room_receivers.len() != room_senders.len() {
+        room_receivers.clear();
+        for (_, sender) in &room_senders {
+            room_receivers.push(sender.subscribe());
+        }
+    }
 
                 // Check for messages from each room
                 for (i, receiver) in room_receivers.iter_mut().enumerate() {

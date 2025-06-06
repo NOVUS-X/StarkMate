@@ -38,7 +38,7 @@ pub struct RequestGameLogPayload {
 }
 
 // Server message types
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 #[serde(tag = "type")]
 pub enum ServerMessage {
     RoomJoined {

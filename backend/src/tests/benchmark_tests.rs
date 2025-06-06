@@ -21,16 +21,17 @@ mod performance_tests {
         let start = Instant::now();
         
         for i in 0..1000 {
-            let room_id = format!("bench-room-{}", i);
-            let player_id = format!("player-{}", i);
-            let _ = join_room(&room_id, &player_id, Some(format!("Player {}", i)));
-        }
+               let room_id = format!("bench-room-{}", i);
+                let player_id = format!("player-{}", i);
+                join_room(&room_id, &player_id, Some(format!("Player {}", i)))
+                    .expect("Room creation should succeed");
+            }
         
         let duration = start.elapsed();
         println!("Created 1000 rooms in {:?}", duration);
         
-        // Should be able to create 1000 rooms in less than 1 second
-        assert!(duration.as_secs() < 1);
+        // Should be able to create 1000 rooms in less than 1000ms
+assert!(duration.as_millis() < 1000, "Room creation took {}ms", duration.as_millis());
     }
 
     #[test]
@@ -43,11 +44,15 @@ mod performance_tests {
         
         let start = Instant::now();
         
-        for i in 0..1000 {
-            let player_id = if i % 2 == 0 { "player-1" } else { "player-2" };
-            let move_notation = format!("move-{}", i);
-            let _ = send_move("bench-moves", player_id, &move_notation);
-        }
+       // Example valid chess moves
+let valid_moves = ["e2e4", "e7e5", "g1f3", "b8c6", "f1c4", "g8f6"];
+
+for i in 0..1000 {
+    let player_id = if i % 2 == 0 { "player-1" } else { "player-2" };
+    let move_notation = valid_moves[i % valid_moves.len()];
+    send_move("bench-moves", player_id, move_notation)
+        .expect("Move should be processed successfully");
+}
         
         let duration = start.elapsed();
         println!("Processed 1000 moves in {:?}", duration);

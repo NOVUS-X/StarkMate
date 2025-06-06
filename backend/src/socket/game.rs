@@ -16,12 +16,6 @@ lazy_static::lazy_static! {
     }));
 }
 
-// Game state structure
-pub struct GameState {
-    rooms: HashMap<String, Room>,
-    message_senders: HashMap<String, MessageSender>,
-}
-
 // Initialize the game state
 pub fn init_game_state() {
     // This function is called at startup to ensure the lazy_static is initialized
@@ -53,10 +47,13 @@ pub fn join_room(room_id: &str, player_id: &str, player_name: Option<String>) ->
     
     // Check if room exists, create if not
     if !state.rooms.contains_key(room_id) {
-        let new_room_id = room_id.to_string();
-        let (tx, _) = broadcast::channel(100);
-        state.rooms.insert(new_room_id.clone(), Room::new(new_room_id.clone()));
-        state.message_senders.insert(new_room_id, tx);
+                drop(state); // Release the lock before calling create_room
+                let _ = create_room(); // This creates a new room with a UUID
+                state = GAME_STATE.lock().unwrap();
+                // Now create the room with the requested ID
+                let (tx, _) = broadcast::channel(100);
+                state.rooms.insert(room_id.to_string(), Room::new(room_id.to_string()));
+                state.message_senders.insert(room_id.to_string(), tx);
     }
     
     let room = state.rooms.get_mut(room_id).unwrap();
@@ -80,9 +77,9 @@ pub fn join_room(room_id: &str, player_id: &str, player_name: Option<String>) ->
     };
     
     // Broadcast to other players in the room
-    if let Some(sender) = state.message_senders.get(room_id) {
-        let _ = sender.send(response.clone());
-    }
+    if let Err(e) = sender.send(response.clone()) {
+                    log::warn!("Failed to broadcast RoomJoined message: {:?}", e);
+                }
     
     Ok(response)
 }

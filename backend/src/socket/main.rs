@@ -24,17 +24,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let listener = TcpListener::bind(&addr).await?;
     log::info!("WebSocket server listening on: {}", addr);
     
-    // Accept connections
-    while let Ok((stream, addr)) = listener.accept().await {
-        log::info!("New connection from: {}", addr);
-        
-        // Spawn a new task for each connection
-        tokio::spawn(async move {
-            if let Err(e) = handle_connection(stream, addr).await {
-                log::error!("Error handling connection: {}", e);
+       // Accept connections
+loop {
+       match listener.accept().await {
+                Ok((stream, addr)) => {
+                    log::info!("New connection from: {}", addr);
+                    
+                    // Spawn a new task for each connection
+                    tokio::spawn(async move {
+                        if let Err(e) = handle_connection(stream, addr).await {
+                            log::error!("Error handling connection: {}", e);
+                        }
+                    });
+                }
+                Err(e) => {
+                    log::error!("Failed to accept connection: {}", e);
+                    // Continue accepting connections despite errors
+                }
             }
-        });
-    }
+        }
     
     Ok(())
 }
