@@ -76,10 +76,12 @@ pub fn join_room(room_id: &str, player_id: &str, player_name: Option<String>) ->
         game_state: room.game_state.clone(),
     };
     
-    // Broadcast to other players in the room
-    if let Err(e) = sender.send(response.clone()) {
-                    log::warn!("Failed to broadcast RoomJoined message: {:?}", e);
-                }
+        // Broadcast to other players in the room
+       if let Some(sender) = state.message_senders.get(room_id) {
+            if let Err(e) = sender.send(response.clone()) {
+                log::warn!("Failed to broadcast RoomJoined message: {:?}", e);
+            }
+        }
     
     Ok(response)
 }
