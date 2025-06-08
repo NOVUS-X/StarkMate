@@ -5,49 +5,71 @@ pub struct Migration;
 
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
-    async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        // Replace the sample below with your own migration scripts
+   async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
             .create_table(
                 Table::create()
-                    .table(Player::Table)
+                    .table(Games::Table)
                     .if_not_exists()
-                    .col(pk_uuid(Player::Id))
-                    .col(string(Player::Username).not_null().unique_key())
-                    .col(string(Player::Email).not_null().unique_key())
-                    .col(binary(Player::PasswordHash).not_null())
-                    .col(text(Player::Biography))
-                    .col(string(Player::Country))
-                    .col(string(Player::Flair))
-                    .col(string(Player::RealName))
-                    .col(string(Player::Location))
-                    .col(integer(Player::FIDERating))
-                    .col(array(Player::SocialLinks, ColumnType::String(StringLen::N(150))))
+                    .col(uuid(Games::Id).primary_key())
+                    .col(uuid(Games::WhitePlayerId).not_null())
+                    .col(uuid(Games::BlackPlayerId).not_null())
+                    .col(string(Games::Result).not_null())
+                    .col(timestamp_with_time_zone(Games::CreatedAt).not_null())
+                  .col(timestamp_with_time_zone(Games::UpdatedAt).not_null())
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .create_table(
+                Table::create()
+                    .table(GameMoves::Table)
+                    .if_not_exists()
+                    .col(uuid(GameMoves::Id).primary_key())
+                    .col(uuid(GameMoves::GameId).not_null())
+                    .col(integer(GameMoves::MoveNumber).not_null())
+                    .col(string(GameMoves::Notation).not_null())
+                    .col(json(GameMoves::BoardState))
+                    .col(timestamp_with_time_zone(GameMoves::CreatedAt).not_null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk-game_moves-game_id")
+                            .from(GameMoves::Table, GameMoves::GameId)
+                            .to(Games::Table, Games::Id)
+                            .on_delete(ForeignKeyAction::Cascade)
+                    )
                     .to_owned(),
             )
             .await
-    }
-
-    async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        // Replace the sample below with your own migration scripts
+   }
+   async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(Player::Table).to_owned())
+            .drop_table(Table::drop().table(GameMoves::Table).to_owned())
+            .await?;
+        
+        manager
+            .drop_table(Table::drop().table(Games::Table).to_owned())
             .await
     }
-}
 
 #[derive(DeriveIden)]
-enum Player {
+enum Games {
     Table,
     Id,
-    Username,
-    Email,
-    PasswordHash,
-    Biography,
-    Country,
-    Flair,
-    RealName,
-    Location,
-    FIDERating,
-    SocialLinks
+   WhitePlayerId,
+  BlackPlayerId,
+    Result,
+    CreatedAt,
+    UpdatedAt,
+}
+
+#[derive(DeriveIden)]enum GameMoves {
+    Table,
+    Id,
+    GameId,
+    MoveNumber,
+    Notation,
+    BoardState,
+    CreatedAt,
 }
