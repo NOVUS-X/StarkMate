@@ -21,7 +21,7 @@ pub enum Relation {
 
 impl Related<super::game::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Game.def()
+         Relation::Game.def().to(super::game::Entity)
     }
 }
 

@@ -1,4 +1,5 @@
-suse sea_orm::entity::prelude::*;
+use sea_orm::entity::prelude::*;
+use sea_orm::JsonValue as Json;
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
 
