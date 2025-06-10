@@ -1,12 +1,9 @@
-use starknet::ContractAddress;
-use core::traits::Into;
 use core::option::OptionTrait;
-use core::traits::TryInto;
 use core::result::ResultTrait;
-
-// Import dispatchers
-use match_staking::IMatchStakingDispatcher;
+use core::traits::{Into, TryInto};
 use match_result_storage::IMatchResultStorageDispatcher;
+use match_staking::IMatchStakingDispatcher;
+use starknet::ContractAddress;
 
 // Constants
 const ZERO_ADDRESS: ContractAddress = 0x0.try_into().unwrap();
@@ -15,17 +12,9 @@ const PLAYER2_WIN: felt252 = 2;
 
 #[starknet::interface]
 pub trait IGameLifecycle<TContractState> {
-    fn create_game(
-        ref self: TContractState,
-        player1: ContractAddress,
-        stake: u256,
-    ) -> felt252;
+    fn create_game(ref self: TContractState, player1: ContractAddress, stake: u256) -> felt252;
     fn join_game(ref self: TContractState, game_id: felt252) -> bool;
-    fn submit_result(
-        ref self: TContractState,
-        game_id: felt252,
-        winner: ContractAddress,
-    ) -> bool;
+    fn submit_result(ref self: TContractState, game_id: felt252, winner: ContractAddress) -> bool;
     fn get_game_data(self: @TContractState, game_id: felt252) -> Game;
 }
 
@@ -49,10 +38,10 @@ pub enum GameStatus {
 
 #[starknet::contract]
 pub mod GameLifecycle {
-    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
-    use starknet::{ContractAddress, get_caller_address, get_block_info};
-    use super::{Game, GameStatus, IGameLifecycle, ZERO_ADDRESS, PLAYER1_WIN, PLAYER2_WIN};
     use openzeppelin_access::ownable::OwnableComponent;
+    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
+    use starknet::{ContractAddress, get_block_info, get_caller_address};
+    use super::{Game, GameStatus, IGameLifecycle, PLAYER1_WIN, PLAYER2_WIN, ZERO_ADDRESS};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 
@@ -115,10 +104,7 @@ pub mod GameLifecycle {
         // Validate addresses are non-zero
         assert(owner != ZERO_ADDRESS, 'Owner address cannot be zero');
         assert(match_staking != ZERO_ADDRESS, 'Match staking address cannot be zero');
-        assert(
-            match_result_storage != ZERO_ADDRESS,
-            'Match result storage address cannot be zero',
-        );
+        assert(match_result_storage != ZERO_ADDRESS, 'Match result storage address cannot be zero');
 
         self.ownable.initializer(owner);
         self.match_staking.write(match_staking);
@@ -128,11 +114,7 @@ pub mod GameLifecycle {
 
     #[abi(embed_v0)]
     impl GameLifecycleImpl of super::IGameLifecycle<ContractState> {
-        fn create_game(
-            ref self: ContractState,
-            player1: ContractAddress,
-            stake: u256,
-        ) -> felt252 {
+        fn create_game(ref self: ContractState, player1: ContractAddress, stake: u256) -> felt252 {
             // Only allow game creation by the player or contract owner
             let caller = get_caller_address();
             assert(
@@ -173,10 +155,7 @@ pub mod GameLifecycle {
             // Only allow joining by the player2 or contract owner
             let caller = get_caller_address();
             assert(caller != ZERO_ADDRESS, 'Invalid player address');
-            assert(
-                caller != self.ownable.owner(),
-                'Owner cannot join as player2',
-            );
+            assert(caller != self.ownable.owner(), 'Owner cannot join as player2');
 
             // Get existing game
             let game = self.games.read(game_id);
@@ -211,9 +190,7 @@ pub mod GameLifecycle {
         }
 
         fn submit_result(
-            ref self: ContractState,
-            game_id: felt252,
-            winner: ContractAddress,
+            ref self: ContractState, game_id: felt252, winner: ContractAddress,
         ) -> bool {
             // Only allow result submission by the contract owner
             self.ownable.assert_only_owner();
@@ -223,10 +200,7 @@ pub mod GameLifecycle {
 
             // Validate game state
             assert(game.status == GameStatus::InProgress, 'Game not in progress');
-            assert(
-                winner == game.player1 || winner == game.player2,
-                'Invalid winner address',
-            );
+            assert(winner == game.player1 || winner == game.player2, 'Invalid winner address');
 
             // Submit result to staking contract
             let match_staking = self.match_staking.read();
@@ -252,13 +226,12 @@ pub mod GameLifecycle {
             let result_storage_dispatcher = IMatchResultStorageDispatcher {
                 contract_address: match_result_storage,
             };
-            let result = if winner == game.player1 { PLAYER1_WIN } else { PLAYER2_WIN };
-            result_storage_dispatcher.store_result(
-                game_id,
-                game.player1,
-                game.player2,
-                result,
-            );
+            let result = if winner == game.player1 {
+                PLAYER1_WIN
+            } else {
+                PLAYER2_WIN
+            };
+            result_storage_dispatcher.store_result(game_id, game.player1, game.player2, result);
 
             // Emit event
             self.emit(GameCompleted { game_id, winner });
@@ -270,4 +243,4 @@ pub mod GameLifecycle {
             self.games.read(game_id)
         }
     }
-} 
+}
